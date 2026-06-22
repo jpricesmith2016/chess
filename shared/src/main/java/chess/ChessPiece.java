@@ -47,7 +47,8 @@ public class ChessPiece {
         return type;
     }
 
-    private static Collection<ChessMove> addPossibleMoves (ChessBoard board, ChessPosition start, ChessPiece piece, Collection<ChessMove> moves, int[][] directions, boolean repeat) {
+    private static Collection<ChessMove> addPossibleMoves
+            (ChessBoard board, ChessPosition start, ChessPiece piece, Collection<ChessMove> moves, int[][] directions, boolean repeat) {
         // Iterate over all possible directions for a piece to take
         for (int[] dir : directions) {
             // Adjust the row and col based on the direction at that index
