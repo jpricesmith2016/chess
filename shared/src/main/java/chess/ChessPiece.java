@@ -131,19 +131,16 @@ public class ChessPiece {
                 ChessPosition end = new ChessPosition(row, col);
                 ChessPiece target = board.getPiece(end);
 
-                if (target != null) {
-                    if (target.getTeamColor() != pawn.getTeamColor()) {
-                        if (pawnRowOnce == promotionRow) {
-                            moves.add(new ChessMove(start, end, PieceType.QUEEN));
-                            moves.add(new ChessMove(start, end, PieceType.BISHOP));
-                            moves.add(new ChessMove(start, end, PieceType.KNIGHT));
-                            moves.add(new ChessMove(start, end, PieceType.ROOK));
-                        }
-                        else {
-                            moves.add(new ChessMove(start, end, null));
-                        }
+                if ((target.getTeamColor() != pawn.getTeamColor()) && (target != null)) {
+                    if (pawnRowOnce == promotionRow) {
+                        moves.add(new ChessMove(start, end, PieceType.QUEEN));
+                        moves.add(new ChessMove(start, end, PieceType.BISHOP));
+                        moves.add(new ChessMove(start, end, PieceType.KNIGHT));
+                        moves.add(new ChessMove(start, end, PieceType.ROOK));
                     }
-                    break;
+                    else {
+                        moves.add(new ChessMove(start, end, null));
+                    }
                 }
             }
         }
@@ -207,7 +204,9 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()){
+            return false;
+        }
         ChessPiece that = (ChessPiece) o;
         return pieceColor == that.pieceColor && type == that.type;
     }
