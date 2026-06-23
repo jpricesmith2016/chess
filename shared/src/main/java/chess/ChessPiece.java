@@ -132,7 +132,10 @@ public class ChessPiece {
                 ChessPosition end = new ChessPosition(row, col);
                 ChessPiece target = board.getPiece(end);
 
-                if ((target.getTeamColor() != pawn.getTeamColor()) && (target != null)) {
+                if (target == null) {
+                    continue;
+                }
+                if (target.getTeamColor() != pawn.getTeamColor()) {
                     if (pawnRowOnce == promotionRow) {
                         moves.add(new ChessMove(start, end, PieceType.QUEEN));
                         moves.add(new ChessMove(start, end, PieceType.BISHOP));
