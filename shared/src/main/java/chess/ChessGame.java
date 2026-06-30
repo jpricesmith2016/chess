@@ -15,7 +15,8 @@ public class ChessGame implements Cloneable {
     private TeamColor teamTurn;
     private ChessBoard gameBoard;
     public ChessGame() {
-
+        teamTurn = TeamColor.WHITE;
+        gameBoard = new ChessBoard();
     }
 
     /**
