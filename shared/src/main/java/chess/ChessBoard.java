@@ -70,6 +70,13 @@ public class ChessBoard {
     }
 
     /**
+     * Sets the board with an array
+     */
+    public void setBoard (ChessPiece[][] newBoard) {
+        this.squares = newBoard;
+    }
+
+    /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
@@ -122,11 +129,23 @@ public class ChessBoard {
     }
 
     @Override
-    protected Object clone() {
+    public ChessBoard clone() {
         try {
             ChessBoard clone = (ChessBoard) super.clone();
 
-            
+            ChessPiece[][] clonedSquares = new ChessPiece[8][8];
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    clonedSquares[i][j] = getPiece(new ChessPosition(i,j)).clone();
+                }
+            }
+
+            clone.setBoard(clonedSquares);
+
+            return clone;
+
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
         }
     }
 }

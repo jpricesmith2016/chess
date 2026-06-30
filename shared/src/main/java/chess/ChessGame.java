@@ -53,7 +53,8 @@ public class ChessGame {
         Collection<ChessMove> moves = ChessPiece.pieceMoves(gameBoard, startPosition);
         Collection<ChessMove> legalMoves = new ArrayList<ChessMove>();
         for (ChessMove move : moves) {
-            ChessBoard boardC = 
+            ChessGame gameCopy = (ChessGame) this.clone();
+            makeMove(move);
         }
 
         return legalMoves;
@@ -162,6 +163,18 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return gameBoard;
+    }
+
+    @Override
+    public ChessGame clone() {
+        ChessGame clone;
+        try {
+            clone = (ChessGame) super.clone();
+            
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        return clone;
     }
 
     @Override
