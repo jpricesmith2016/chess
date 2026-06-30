@@ -54,6 +54,7 @@ public class ChessGame implements Cloneable {
         Collection<ChessMove> legalMoves = new ArrayList<>();
         for (ChessMove move : moves) {
             ChessGame gameCopy = this.clone();
+            gameCopy.getBoard().addPiece(startPosition,null);
             gameCopy.getBoard().addPiece(move.getEndPosition(),gameBoard.getPiece(startPosition));
             if (!gameCopy.isInCheck(gameBoard.getPiece(startPosition).getTeamColor())) {
                 legalMoves.add(move);
@@ -77,7 +78,7 @@ public class ChessGame implements Cloneable {
         // Gets piece from start position on the game board
         ChessPiece piece = gameBoard.getPiece(startPos);
         // null exception for piece not being present
-        if (piece == null) {
+        if (gameBoard.getPiece(startPos) == null) {
             throw new InvalidMoveException("No piece at specified starting position");
         }
 
