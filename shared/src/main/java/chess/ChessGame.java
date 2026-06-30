@@ -54,11 +54,7 @@ public class ChessGame {
         Collection<ChessMove> legalMoves = new ArrayList<>();
         for (ChessMove move : moves) {
             ChessGame gameCopy = this.clone();
-            try {
-                gameCopy.makeMove(move);
-            } catch (InvalidMoveException e) {
-                throw new RuntimeException(e);
-            }
+            gameCopy.getBoard().addPiece(move.getEndPosition(),gameBoard.getPiece(startPosition));
             if (!gameCopy.isInCheck(gameBoard.getPiece(startPosition).getTeamColor())) {
                 legalMoves.add(move);
             }
@@ -98,6 +94,7 @@ public class ChessGame {
         }
 
         // Move the piece and check if it needs to be promoted
+        gameBoard.addPiece(startPos, null);
         if (move.getPromotionPiece() != null) {
             gameBoard.addPiece(endPos, new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
         } else {
