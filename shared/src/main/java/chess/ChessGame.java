@@ -195,7 +195,7 @@ public class ChessGame {
         ChessGame clone;
         try {
             clone = (ChessGame) super.clone();
-            ChessBoard clonedBoard = (ChessBoard) getBoard().clone();
+            ChessBoard clonedBoard = getBoard().clone();
             clone.setBoard(clonedBoard);
             return clone;
         } catch (CloneNotSupportedException e) {
