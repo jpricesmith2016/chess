@@ -52,11 +52,19 @@ public class ChessGame implements Cloneable {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         Collection<ChessMove> moves = ChessPiece.pieceMoves(gameBoard, startPosition);
+        if (moves == null) {
+            return new ArrayList<>();
+        }
         Collection<ChessMove> legalMoves = new ArrayList<>();
         for (ChessMove move : moves) {
             ChessGame gameCopy = this.clone();
+            ChessPiece piece = gameCopy.getBoard().getPiece(startPosition);
             gameCopy.getBoard().addPiece(startPosition,null);
-            gameCopy.getBoard().addPiece(move.getEndPosition(),gameBoard.getPiece(startPosition));
+            if (move.getPromotionPiece() != null) {
+                gameCopy.getBoard().addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+            } else {
+                gameCopy.getBoard().addPiece(move.getEndPosition(), piece);
+            }
             if (!gameCopy.isInCheck(gameBoard.getPiece(startPosition).getTeamColor())) {
                 legalMoves.add(move);
             }
@@ -96,7 +104,6 @@ public class ChessGame implements Cloneable {
         }
 
         // Move the piece and check if it needs to be promoted
-        gameBoard.addPiece(startPos, null);
         if (move.getPromotionPiece() != null) {
             gameBoard.addPiece(endPos, new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
         } else {
@@ -120,13 +127,11 @@ public class ChessGame implements Cloneable {
         ChessPosition kingPos = gameBoard.getKing(teamColor);
         Collection<ChessPosition> enemies = gameBoard.getTeam(teamColor, true);
         for (ChessPosition e : enemies) {
-            Collection<ChessMove> eMoves = validMoves(e);
-            if (eMoves.contains(new ChessMove(e, kingPos, null)) ||
-                    eMoves.contains(new ChessMove(e, kingPos, ChessPiece.PieceType.QUEEN)) ||
-                    eMoves.contains(new ChessMove(e, kingPos, ChessPiece.PieceType.BISHOP)) ||
-                    eMoves.contains(new ChessMove(e, kingPos, ChessPiece.PieceType.KNIGHT)) ||
-                    eMoves.contains(new ChessMove(e, kingPos, ChessPiece.PieceType.ROOK))){
-                return true;
+            Collection<ChessMove> eMoves = ChessPiece.pieceMoves(gameBoard, e);
+            for (ChessMove m : eMoves) {
+                if (m.getEndPosition().equals(kingPos)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -144,9 +149,10 @@ public class ChessGame implements Cloneable {
             yourTeam = gameBoard.getTeam(teamColor, false);
             for (ChessPosition piece : yourTeam) {
                 if (!validMoves(piece).isEmpty()) {
-                    return true;
+                    return false;
                 }
             }
+            return true;
         }
         return false;
     }
@@ -164,9 +170,10 @@ public class ChessGame implements Cloneable {
             yourTeam = gameBoard.getTeam(teamColor, false);
             for (ChessPosition piece : yourTeam) {
                 if (!validMoves(piece).isEmpty()) {
-                    return true;
+                    return false;
                 }
             }
+            return true;
         }
         return false;
     }
@@ -204,15 +211,15 @@ public class ChessGame implements Cloneable {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()){
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return teamTurn == chessGame.teamTurn;
+        return teamTurn == chessGame.teamTurn && Objects.equals(gameBoard, chessGame.gameBoard);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(teamTurn);
+        return Objects.hash(teamTurn, gameBoard);
     }
 }
