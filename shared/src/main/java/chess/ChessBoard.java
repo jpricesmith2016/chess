@@ -62,7 +62,8 @@ public class ChessBoard implements Cloneable {
     public ChessPosition getKing (ChessGame.TeamColor team) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (squares[i][j].getTeamColor() == team && squares[i][j].getPieceType() == ChessPiece.PieceType.KING) {
+                if (squares[i][j] != null &&
+                        squares[i][j].getTeamColor() == team && squares[i][j].getPieceType() == ChessPiece.PieceType.KING) {
                     return new ChessPosition(i,j);
                 }
             }
@@ -135,8 +136,8 @@ public class ChessBoard implements Cloneable {
             ChessBoard clone = (ChessBoard) super.clone();
 
             ChessPiece[][] clonedSquares = new ChessPiece[8][8];
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
+            for (int i = 1; i <= 8; i++) {
+                for (int j = 1; j <= 8; j++) {
                     clonedSquares[i][j] = getPiece(new ChessPosition(i,j)).clone();
                 }
             }
