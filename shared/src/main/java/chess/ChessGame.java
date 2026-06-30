@@ -54,7 +54,14 @@ public class ChessGame {
         Collection<ChessMove> legalMoves = new ArrayList<ChessMove>();
         for (ChessMove move : moves) {
             ChessGame gameCopy = (ChessGame) this.clone();
-            makeMove(move);
+            try {
+                gameCopy.makeMove(move);
+            } catch (InvalidMoveException e) {
+                throw new RuntimeException(e);
+            }
+            if (!gameCopy.isInCheck(gameBoard.getPiece(startPosition).getTeamColor())) {
+                legalMoves.add(move);
+            }
         }
 
         return legalMoves;
@@ -112,7 +119,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPos = gameBoard.getKing(teamColor);
-        Collection<ChessPosition> enemies = gameBoard.getOppTeam(teamColor);
+        Collection<ChessPosition> enemies = gameBoard.getTeam(teamColor, true);
         for (ChessPosition e : enemies) {
             Collection<ChessMove> eMoves = validMoves(e);
             if (eMoves.contains(new ChessMove(e, kingPos, null)) ||
@@ -133,7 +140,16 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) {
+            Collection<ChessPosition> yourTeam = new ArrayList<ChessPosition>();
+            yourTeam = gameBoard.getTeam(teamColor, false);
+            for (ChessPosition piece : yourTeam) {
+                if (!validMoves(piece).isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -144,7 +160,16 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-
+        if (!isInCheck(teamColor)) {
+            Collection<ChessPosition> yourTeam = new ArrayList<ChessPosition>();
+            yourTeam = gameBoard.getTeam(teamColor, false);
+            for (ChessPosition piece : yourTeam) {
+                if (!validMoves(piece).isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
