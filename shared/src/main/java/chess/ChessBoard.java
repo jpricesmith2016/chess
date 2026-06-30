@@ -46,9 +46,9 @@ public class ChessBoard implements Cloneable {
         Collection<ChessPosition> oppPieces = new ArrayList<>();
         ChessGame.TeamColor teamPieces = oppTeam ?
             (team == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE) : team;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (squares[i][j].getTeamColor() == teamPieces) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                if (squares[i-1][j-1] != null && squares[i-1][j-1].getTeamColor() == teamPieces) {
                     oppPieces.add(new ChessPosition(i,j));
                 }
             }
@@ -60,10 +60,10 @@ public class ChessBoard implements Cloneable {
      * Returns the location of the King Piece of the specified team returns null if King not found.
      */
     public ChessPosition getKing (ChessGame.TeamColor team) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (squares[i][j] != null &&
-                        squares[i][j].getTeamColor() == team && squares[i][j].getPieceType() == ChessPiece.PieceType.KING) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                if (squares[i-1][j-1] != null &&
+                        squares[i-1][j-1].getTeamColor() == team && squares[i-1][j-1].getPieceType() == ChessPiece.PieceType.KING) {
                     return new ChessPosition(i,j);
                 }
             }
@@ -136,9 +136,11 @@ public class ChessBoard implements Cloneable {
             ChessBoard clone = (ChessBoard) super.clone();
 
             ChessPiece[][] clonedSquares = new ChessPiece[8][8];
-            for (int i = 1; i <= 8; i++) {
-                for (int j = 1; j <= 8; j++) {
-                    clonedSquares[i][j] = getPiece(new ChessPosition(i,j)).clone();
+            for (int i = 1; i < 9; i++) {
+                for (int j = 1; j < 9; j++) {
+                    if (getPiece(new ChessPosition(i,j)) != null) {
+                        clonedSquares[i-1][j-1] = getPiece(new ChessPosition(i, j)).clone();
+                    }
                 }
             }
 
