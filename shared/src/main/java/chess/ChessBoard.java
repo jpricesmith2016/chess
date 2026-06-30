@@ -40,14 +40,15 @@ public class ChessBoard {
     }
 
     /**
-     * Returns a collection of Chess Positions on the board of the opposing team color
+     * Returns a collection of Chess Positions on the board of the opposing team color or your team color
      */
-    public Collection<ChessPosition> getOppTeam (ChessGame.TeamColor team) {
+    public Collection<ChessPosition> getTeam (ChessGame.TeamColor team, boolean oppTeam) {
         Collection<ChessPosition> oppPieces = new ArrayList<ChessPosition>();
-        ChessGame.TeamColor oppTeam = team == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        ChessGame.TeamColor teamPieces = oppTeam ?
+            (team == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE) : team;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (squares[i][j].getTeamColor() == oppTeam) {
+                if (squares[i][j].getTeamColor() == teamPieces) {
                     oppPieces.add(new ChessPosition(i,j));
                 }
             }
