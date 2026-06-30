@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -35,6 +37,36 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         return squares[position.getRow()-1][position.getColumn()-1];
+    }
+
+    /**
+     * Returns a collection of Chess Positions on the board of the opposing team color
+     */
+    public Collection<ChessPosition> getOppTeam (ChessGame.TeamColor team) {
+        Collection<ChessPosition> oppPieces = new ArrayList<ChessPosition>();
+        ChessGame.TeamColor oppTeam = team == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (squares[i][j].getTeamColor() == oppTeam) {
+                    oppPieces.add(new ChessPosition(i,j));
+                }
+            }
+        }
+        return oppPieces;
+    }
+
+    /**
+     * Returns the location of the King Piece of the specified team returns null if King not found.
+     */
+    public ChessPosition getKing (ChessGame.TeamColor team) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (squares[i][j].getTeamColor() == team && squares[i][j].getPieceType() == ChessPiece.PieceType.KING) {
+                    return new ChessPosition(i,j);
+                }
+            }
+        }
+        return null;
     }
 
     /**
