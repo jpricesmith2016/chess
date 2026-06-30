@@ -43,7 +43,7 @@ public class ChessBoard {
      * Returns a collection of Chess Positions on the board of the opposing team color or your team color
      */
     public Collection<ChessPosition> getTeam (ChessGame.TeamColor team, boolean oppTeam) {
-        Collection<ChessPosition> oppPieces = new ArrayList<ChessPosition>();
+        Collection<ChessPosition> oppPieces = new ArrayList<>();
         ChessGame.TeamColor teamPieces = oppTeam ?
             (team == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE) : team;
         for (int i = 0; i < 8; i++) {

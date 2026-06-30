@@ -51,9 +51,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         Collection<ChessMove> moves = ChessPiece.pieceMoves(gameBoard, startPosition);
-        Collection<ChessMove> legalMoves = new ArrayList<ChessMove>();
+        Collection<ChessMove> legalMoves = new ArrayList<>();
         for (ChessMove move : moves) {
-            ChessGame gameCopy = (ChessGame) this.clone();
+            ChessGame gameCopy = this.clone();
             try {
                 gameCopy.makeMove(move);
             } catch (InvalidMoveException e) {
@@ -141,7 +141,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         if (isInCheck(teamColor)) {
-            Collection<ChessPosition> yourTeam = new ArrayList<ChessPosition>();
+            Collection<ChessPosition> yourTeam;
             yourTeam = gameBoard.getTeam(teamColor, false);
             for (ChessPosition piece : yourTeam) {
                 if (!validMoves(piece).isEmpty()) {
@@ -161,7 +161,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) {
-            Collection<ChessPosition> yourTeam = new ArrayList<ChessPosition>();
+            Collection<ChessPosition> yourTeam;
             yourTeam = gameBoard.getTeam(teamColor, false);
             for (ChessPosition piece : yourTeam) {
                 if (!validMoves(piece).isEmpty()) {
