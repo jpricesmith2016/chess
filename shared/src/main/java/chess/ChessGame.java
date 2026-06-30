@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -49,7 +50,13 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return ChessPiece.pieceMoves(gameBoard, startPosition);
+        Collection<ChessMove> moves = ChessPiece.pieceMoves(gameBoard, startPosition);
+        Collection<ChessMove> legalMoves = new ArrayList<ChessMove>();
+        for (ChessMove move : moves) {
+            ChessBoard boardC = 
+        }
+
+        return legalMoves;
     }
 
     /**
@@ -75,7 +82,7 @@ public class ChessGame {
             throw new InvalidMoveException("It is not your turn");
         }
 
-        Collection<ChessMove> currentPossibilities = ChessPiece.pieceMoves(gameBoard, startPos);
+        Collection<ChessMove> currentPossibilities = validMoves(startPos);
 
         //Checks to see if end move is legal
         if (!currentPossibilities.contains(move)) {
@@ -103,7 +110,19 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPos = gameBoard.getKing(teamColor);
+        Collection<ChessPosition> enemies = gameBoard.getOppTeam(teamColor);
+        for (ChessPosition e : enemies) {
+            Collection<ChessMove> eMoves = validMoves(e);
+            if (eMoves.contains(new ChessMove(e, kingPos, null)) ||
+                    eMoves.contains(new ChessMove(e, kingPos, ChessPiece.PieceType.QUEEN)) ||
+                    eMoves.contains(new ChessMove(e, kingPos, ChessPiece.PieceType.BISHOP)) ||
+                    eMoves.contains(new ChessMove(e, kingPos, ChessPiece.PieceType.KNIGHT)) ||
+                    eMoves.contains(new ChessMove(e, kingPos, ChessPiece.PieceType.ROOK))){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -124,7 +143,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
     }
 
     /**
@@ -133,7 +152,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        board = gameBoard;
+        this.gameBoard = board;
     }
 
     /**

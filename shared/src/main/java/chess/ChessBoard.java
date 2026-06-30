@@ -120,4 +120,13 @@ public class ChessBoard {
     public int hashCode() {
         return Arrays.deepHashCode(squares);
     }
+
+    @Override
+    protected Object clone() {
+        try {
+            ChessBoard clone = (ChessBoard) super.clone();
+
+            
+        }
+    }
 }
