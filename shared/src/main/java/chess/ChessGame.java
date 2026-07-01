@@ -163,16 +163,23 @@ public class ChessGame implements Cloneable {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         if (isInCheck(teamColor)) {
-            Collection<ChessPosition> yourTeam;
-            yourTeam = gameBoard.getTeam(teamColor, false);
-            for (ChessPosition piece : yourTeam) {
-                if (!validMoves(piece).isEmpty()) {
-                    return false;
-                }
-            }
-            return true;
+            return noMoves(teamColor);
         }
         return false;
+    }
+
+    /**
+     * Helper Function for Checking if no valid moves are available.
+     */
+    private boolean noMoves(TeamColor teamColor) {
+        Collection<ChessPosition> yourTeam;
+        yourTeam = gameBoard.getTeam(teamColor, false);
+        for (ChessPosition piece : yourTeam) {
+            if (!validMoves(piece).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -184,14 +191,7 @@ public class ChessGame implements Cloneable {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) {
-            Collection<ChessPosition> yourTeam;
-            yourTeam = gameBoard.getTeam(teamColor, false);
-            for (ChessPosition piece : yourTeam) {
-                if (!validMoves(piece).isEmpty()) {
-                    return false;
-                }
-            }
-            return true;
+            return noMoves(teamColor);
         }
         return false;
     }
