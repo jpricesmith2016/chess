@@ -13,10 +13,10 @@ import java.util.Objects;
 public class ChessGame implements Cloneable {
 
     private TeamColor teamTurn;
-    private ChessBoard gameBoard;
+    private ChessBoard gameBoard = new ChessBoard();
     public ChessGame() {
         teamTurn = TeamColor.WHITE;
-        gameBoard = new ChessBoard();
+        gameBoard.resetBoard();
     }
 
     /**
