@@ -90,19 +90,19 @@ public class ChessPiece implements Cloneable {
         int startRow = whiteTeam ? 2 : 7;
         int promotionRow = whiteTeam ? 8 : 1;
         int pawnRow = start.getRow();
-        int pawnCol = start.getColumn();
         int pawnRowOnce = pawnRow+(direction);
         int pawnRowTwice = pawnRow+(2*direction);
         int [][] diagonals = new int [][] {
-                {pawnRowOnce, -1}, {pawnRowOnce, 1}
+                {direction, -1}, {direction, 1}
         };
 
         // Initialize the basic movement of the pawn
-        ChessPosition oneSpace = new ChessPosition(pawnRowOnce, pawnCol);
+        ChessPosition oneSpace = new ChessPosition(pawnRowOnce, start.getColumn());
         ChessPosition twoSpace = new ChessPosition(pawnRowTwice, start.getColumn());
 
         // Logic for basic forward movement, ensure that movement doesn't exceed bounds and restrict capture ability
-        if (pawnRowOnce >= 1 && pawnRowOnce <= 8 && pawnCol >= 1 && pawnCol <= 8 && board.getPiece(oneSpace) == null) {
+        if (pawnRowOnce >= 1 && pawnRowOnce <= 8 && start.getColumn() >= 1 && start.getColumn() <= 8
+                && board.getPiece(oneSpace) == null) {
 
             // Control Promotion
             if (pawnRowOnce == promotionRow) {
@@ -124,7 +124,7 @@ public class ChessPiece implements Cloneable {
         // Logic for Capture
         for (int[] dir : diagonals) {
             // Manipulate the row and column by the array
-            int row = dir[0];
+            int row = start.getRow() + dir[0];
             int col = start.getColumn() + dir[1];
 
             // Check if you are in bounds
@@ -160,6 +160,9 @@ public class ChessPiece implements Cloneable {
      */
     public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
+        if (piece == null) {
+            return null;
+        }
 
         Collection<ChessMove> moves = new ArrayList<>();
 

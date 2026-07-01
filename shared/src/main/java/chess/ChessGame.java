@@ -65,7 +65,7 @@ public class ChessGame implements Cloneable {
             } else {
                 gameCopy.getBoard().addPiece(move.getEndPosition(), piece);
             }
-            if (!gameCopy.isInCheck(gameBoard.getPiece(startPosition).getTeamColor())) {
+            if (!gameCopy.isInCheck(piece.getTeamColor())) {
                 legalMoves.add(move);
             }
         }
@@ -98,10 +98,27 @@ public class ChessGame implements Cloneable {
 
         Collection<ChessMove> currentPossibilities = validMoves(startPos);
 
+        ChessMove selectedMove = move;
+        if (!currentPossibilities.contains(selectedMove)) {
+            if (selectedMove.getPromotionPiece() == null) {
+                for (ChessMove possibility : currentPossibilities) {
+                    if (possibility.getStartPosition().equals(startPos)
+                            && possibility.getEndPosition().equals(endPos)
+                            && possibility.getPromotionPiece() == move.getPromotionPiece()) {
+                        selectedMove = possibility;
+                        break;
+                    }
+                }
+            }
+        }
+
         //Checks to see if end move is legal
-        if (!currentPossibilities.contains(move)) {
+        if (!currentPossibilities.contains(selectedMove)) {
             throw new InvalidMoveException("Your move is not possible");
         }
+
+        // Use the selected canonical move for execution
+        move = selectedMove;
 
         // Move the piece and check if it needs to be promoted
         if (move.getPromotionPiece() != null) {
@@ -128,6 +145,7 @@ public class ChessGame implements Cloneable {
         Collection<ChessPosition> enemies = gameBoard.getTeam(teamColor, true);
         for (ChessPosition e : enemies) {
             Collection<ChessMove> eMoves = ChessPiece.pieceMoves(gameBoard, e);
+            assert eMoves != null;
             for (ChessMove m : eMoves) {
                 if (m.getEndPosition().equals(kingPos)) {
                     return true;
