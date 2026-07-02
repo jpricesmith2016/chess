@@ -47,6 +47,17 @@ public class ChessPiece implements Cloneable {
         return type;
     }
 
+    /**
+     * Adds possible moves for a piece based on its movement patterns
+     * 
+     * @param board the chess board
+     * @param start the starting position of the piece
+     * @param piece the chess piece
+     * @param moves the collection of possible moves
+     * @param directions the directions in which the piece can move
+     * @param repeat whether the piece can repeat its movement
+     * @return the updated collection of possible moves
+     */
     private static Collection<ChessMove> addPossibleMoves
             (ChessBoard board, ChessPosition start, ChessPiece piece, Collection<ChessMove> moves, int[][] directions, boolean repeat) {
         // Iterate over all possible directions for a piece to take
@@ -82,8 +93,17 @@ public class ChessPiece implements Cloneable {
         }
         return moves;
     }
-    
-    private static Collection<ChessMove> addPawnMoves(ChessBoard board, ChessPosition start, ChessPiece pawn, Collection<ChessMove> moves) {
+
+    /**
+     * Adds possible moves for a pawn piece
+     * @param board the chess board
+     * @param start the starting position of the pawn
+     * @param pawn the pawn piece
+     * @param moves the collection of possible moves
+     * @param game the chess game object
+     * @return the updated collection of possible moves
+     */
+    private static Collection<ChessMove> addPawnMoves(ChessBoard board, ChessPosition start, ChessPiece pawn, Collection<ChessMove> moves, ChessGame game) {
         // Initialize helper variables to either reduce calls or length of code
         boolean whiteTeam = pawn.getTeamColor() == ChessGame.TeamColor.WHITE;
         int direction = whiteTeam ? 1 : -1;
@@ -133,6 +153,10 @@ public class ChessPiece implements Cloneable {
                 ChessPiece target = board.getPiece(end);
 
                 if (target == null) {
+                    // adds stipulation that null could mean enPassant and checks to see if that move was made
+                    if (game != null && end.equals(game.getEnPassant())) {
+                        moves.add(new ChessMove(start, end, null));
+                    }
                     continue;
                 }
                 if (target.getTeamColor() != pawn.getTeamColor()) {
@@ -152,6 +176,75 @@ public class ChessPiece implements Cloneable {
     }
 
     /**
+     * Adds possible castling moves for a king piece
+     * @param board the chess board object
+     * @param start the starting position of the king
+     * @param king the king piece
+     * @param moves the collection of possible moves
+     * @param game the chess game object
+     */
+    private static void addCastlingMoves(ChessBoard board, ChessPosition start, ChessPiece king,
+                                         Collection<ChessMove> moves, ChessGame game) {
+        // if undefined game was passed return
+        if (game == null) {
+            return;
+        }
+
+        ChessGame.TeamColor teamColor = king.getTeamColor();
+        int row = start.getRow();
+
+        if (game.castleKingside(teamColor)) {
+            ChessPosition throughOne = new ChessPosition(row, start.getColumn() + 1);
+            ChessPosition throughTwo = new ChessPosition(row, start.getColumn() + 2);
+            if (board.getPiece(throughOne) == null && board.getPiece(throughTwo) == null
+                    && isSquareSafe(board, start, teamColor)
+                    && isSquareSafe(board, throughOne, teamColor)
+                    && isSquareSafe(board, throughTwo, teamColor)) {
+                moves.add(new ChessMove(start, throughTwo, null));
+            }
+        }
+
+        if (game.castleQueenside(teamColor)) {
+            ChessPosition throughOne = new ChessPosition(row, start.getColumn() - 1);
+            ChessPosition throughTwo = new ChessPosition(row, start.getColumn() - 2);
+            if (board.getPiece(throughOne) == null && board.getPiece(throughTwo) == null
+                    && isSquareSafe(board, start, teamColor)
+                    && isSquareSafe(board, throughOne, teamColor)
+                    && isSquareSafe(board, throughTwo, teamColor)) {
+                moves.add(new ChessMove(start, throughTwo, null));
+            }
+        }
+    }
+
+    /**
+     * Checks if the square is being attacked by an enemy, can potentially be reused for AI later down the line
+     * @param board current board state
+     * @param position Chess position
+     * @param teamColor Team requesting info
+     * @return true if enemy can attack space false otherwise
+     */
+    private static boolean isSquareSafe(ChessBoard board, ChessPosition position, ChessGame.TeamColor teamColor) {
+        // gets position of enemy team
+        Collection<ChessPosition> opponents = board.getTeam(teamColor, true);
+        // iterates over enemies
+        for (ChessPosition opponentPosition : opponents) {
+            ChessPiece opponentPiece = board.getPiece(opponentPosition);
+            if (opponentPiece == null) {
+                continue;
+            }
+            Collection<ChessMove> opponentMoves = pieceMoves(board, opponentPosition);
+            if (opponentMoves != null) {
+                for (ChessMove move : opponentMoves) {
+                    if (move.getEndPosition().equals(position)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -159,6 +252,17 @@ public class ChessPiece implements Cloneable {
      * @return Collection of valid moves
      */
     public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        return pieceMoves(board, myPosition, null);
+    }
+
+    /**
+     * Overloaded version of pieceMoves that allows us to pass in a game object
+     * @param board Current board
+     * @param myPosition Piece position
+     * @param game Current game object
+     * @return a Collection of possible moves without taking into account check or game ending moves
+     */
+    public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessGame game) {
         ChessPiece piece = board.getPiece(myPosition);
         if (piece == null) {
             return null;
@@ -173,7 +277,9 @@ public class ChessPiece implements Cloneable {
                     {1,0}, {0,1}, {-1,0}, {0,-1},
                     {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
             };
-            return addPossibleMoves(board, myPosition, piece, moves, directions, false);
+            addPossibleMoves(board, myPosition, piece, moves, directions, false);
+            addCastlingMoves(board, myPosition, piece, moves, game);
+            return moves;
         }
         if (piece.getPieceType() == PieceType.QUEEN) {
             directions = new int[][]{
@@ -204,7 +310,7 @@ public class ChessPiece implements Cloneable {
             return addPossibleMoves(board, myPosition, piece, moves, directions, true);
         }
         if(piece.getPieceType() == PieceType.PAWN) {
-            return addPawnMoves(board, myPosition, piece, moves);
+            return addPawnMoves(board, myPosition, piece, moves, game);
         }
         return List.of();
     }
