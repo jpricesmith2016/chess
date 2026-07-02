@@ -98,27 +98,10 @@ public class ChessGame implements Cloneable {
 
         Collection<ChessMove> currentPossibilities = validMoves(startPos);
 
-        ChessMove selectedMove = move;
-        if (!currentPossibilities.contains(selectedMove)) {
-            if (selectedMove.getPromotionPiece() == null) {
-                for (ChessMove possibility : currentPossibilities) {
-                    if (possibility.getStartPosition().equals(startPos)
-                            && possibility.getEndPosition().equals(endPos)
-                            && possibility.getPromotionPiece() == move.getPromotionPiece()) {
-                        selectedMove = possibility;
-                        break;
-                    }
-                }
-            }
-        }
-
         //Checks to see if end move is legal
-        if (!currentPossibilities.contains(selectedMove)) {
+        if (!currentPossibilities.contains(move)) {
             throw new InvalidMoveException("Your move is not possible");
         }
-
-        // Use the selected canonical move for execution
-        move = selectedMove;
 
         // Move the piece and check if it needs to be promoted
         if (move.getPromotionPiece() != null) {
