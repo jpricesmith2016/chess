@@ -19,10 +19,10 @@ public class GameJoinHandler implements Handler {
     @Override
     public void handle(Context context) throws Exception {
         String authToken = context.header("Authorization");
-        GameJoinRequest request = gson.fromJson(context.body(), gameJoinRequest.class);
+        GameJoinRequest request = gson.fromJson(context.body(), GameJoinRequest.class);
         GameJoinResult result = service.joinGame(authToken, request);
 
-        context.status(200);
-        context.json(result);
+        context.status(result.resultCode());
+        context.json(result.message());
     }
 }

@@ -17,4 +17,6 @@ public interface GameDAO {
     public void deleteGame (int gameID);
 
     public void clearGame ();
+
+    public int length ();
 }

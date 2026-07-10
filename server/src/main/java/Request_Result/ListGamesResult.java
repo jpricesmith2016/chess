@@ -1,4 +1,4 @@
 package Request_Result;
 
-public class ListGamesResult {
+public record ListGamesResult (int resultCode, String message){
 }

@@ -1,4 +1,4 @@
 package Request_Result;
 
-public class CreateResult {
+public record CreateResult (int resultCode, String message){
 }

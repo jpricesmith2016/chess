@@ -41,4 +41,9 @@ public class MemoryGameDAO implements GameDAO{
     public void clearGame() {
         gameInfo.clear();
     }
+
+    @Override
+    public int length() {
+        return gameInfo.size();
+    }
 }

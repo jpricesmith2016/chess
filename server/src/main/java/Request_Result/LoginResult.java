@@ -1,4 +1,4 @@
 package Request_Result;
 
-public class LoginResult {
+public record LoginResult (int resultCode, String message){
 }

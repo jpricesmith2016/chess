@@ -1,4 +1,4 @@
 package Request_Result;
 
-public class ClearResult {
+public record ClearResult (int resultCode, String message){
 }
