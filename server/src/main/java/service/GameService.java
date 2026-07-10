@@ -26,11 +26,11 @@ public class GameService {
 
     public CreateResult createGame(String authToken, CreateRequest request) {
         if (request.gameName() == null || request.gameName().isEmpty()) {
-            return new CreateResult(400, "Error: bad request");
+            return new CreateResult(400,0, "Error: bad request");
         }
         GameData game = new GameData(gameDAO.length(), null, null, request.gameName(), new ChessGame());
 
-        return new CreateResult(200, Integer.toString(game.gameID()));
+        return new CreateResult(200, game.gameID(), "");
     }
 
     public GameJoinResult joinGame(String authToken, GameJoinRequest request) {
@@ -38,7 +38,7 @@ public class GameService {
             return new GameJoinResult(400, "Error: bad request");
         }
         AuthData auth = authDAO.getAuth(authToken);
-        if (auth == null) {
+        if (authDAO.containsAuthToken(authToken)) {
             return new GameJoinResult(401, "Error: unauthorized");
         }
         GameData game = gameDAO.getGame(request.gameID());
