@@ -1,9 +1,6 @@
 package service;
 
-import Request_Result.CreateRequest;
-import Request_Result.CreateResult;
-import Request_Result.GameJoinRequest;
-import Request_Result.GameJoinResult;
+import Request_Result.*;
 import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
@@ -19,15 +16,14 @@ public class GameService{
         this.authDAO = authDAO;
     }
 
+    public ListGamesResult ListGames (String authToken) {
+
+    }
+
     public CreateResult createGame (String authToken, CreateRequest request) {
         if (request.gameName() == null || request.gameName().isEmpty()) {
             return new CreateResult(400, "Error: bad request");
         }
-        AuthData auth = authDAO.getAuth(authToken);
-        if (auth == null) {
-            return new CreateResult(401, "Error: unauthorized");
-        }
-
         GameData game = new GameData(gameDAO.length(),null,null,request.gameName(),new ChessGame());
 
         return new CreateResult(200, Integer.toString(game.gameID()));
