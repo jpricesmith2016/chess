@@ -12,11 +12,13 @@ public class ServerMain {
         int port = server.run(requestedPort);
 
     }
-    public int run(int requestedPort){
+
+    public int run(int requestedPort) {
         Javalin javalinServer = Javalin.create();
         createHandlers(javalinServer);
         return javalinServer.port();
     }
+
     private void createHandlers(Javalin javalinServer) {
         javalinServer.delete("/db", new dbClearHandler());
         javalinServer.post("/user", new userRegHandler());

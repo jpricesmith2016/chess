@@ -1,4 +1,4 @@
 package Request_Result;
 
-public record CreateRequest (String gameName){
+public record CreateRequest(String gameName) {
 }

@@ -3,13 +3,13 @@ package dataaccess;
 import model.UserData;
 
 public interface UserDAO {
-    public void createUser (UserData u);
+    void createUser(UserData u);
 
-    public UserData getUser (String username);
+    UserData getUser(String username);
 
-    public void updateUser (UserData user);
+    void updateUser(UserData user);
 
-    public void deleteUser (String username);
+    void deleteUser(String username);
 
-    public void clearUser ();
+    void clearUser();
 }

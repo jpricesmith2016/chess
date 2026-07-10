@@ -10,10 +10,9 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 
-
 public class AuthService {
-    AuthDAO authDAO;
-    UserDAO userDAO;
+    final AuthDAO authDAO;
+    final UserDAO userDAO;
 
     private static String generateToken() {
         SecureRandom secRand = new SecureRandom();
@@ -23,7 +22,7 @@ public class AuthService {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
-    public AuthService (AuthDAO authDAO, UserDAO userDAO) {
+    public AuthService(AuthDAO authDAO, UserDAO userDAO) {
         this.authDAO = authDAO;
         this.userDAO = userDAO;
     }
@@ -32,10 +31,10 @@ public class AuthService {
         if (req.authToken() == null || authDAO.getAuth(req.authToken()) == null) {
             return new AuthResult(401, "Error: unauthorized");
         }
-        return new AuthResult(200,"");
+        return new AuthResult(200, "");
     }
 
-    RegisterResult register (RegisterRequest regReq) {
+    RegisterResult register(RegisterRequest regReq) {
         String authToken;
         // Verify input
         // Check request username is not taken (return null)
@@ -58,7 +57,7 @@ public class AuthService {
 
         userDAO.createUser(new UserData(regReq.username(), regReq.password(), regReq.email()));
 
-        return new RegisterResult(200,regReq.username(),authToken,"");
+        return new RegisterResult(200, regReq.username(), authToken, "");
     }
 
 

@@ -3,10 +3,9 @@ package dataaccess;
 import model.GameData;
 
 import java.util.*;
-import java.util.function.Predicate;
 
-public class MemoryGameDAO implements GameDAO{
-    Map<Integer, GameData> gameInfo = new HashMap<>();
+public class MemoryGameDAO implements GameDAO {
+    final Map<Integer, GameData> gameInfo = new HashMap<>();
 
     @Override
     public void createGame(GameData g) {
