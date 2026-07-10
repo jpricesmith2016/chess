@@ -5,7 +5,6 @@ import handler.DbClearHandler;
 import handler.GameJoinHandler;
 import handler.UserRegHandler;
 import io.javalin.*;
-import io.javalin.http.Handler;
 import service.AuthService;
 import service.GameService;
 import service.UserService;

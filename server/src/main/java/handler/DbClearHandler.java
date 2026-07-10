@@ -27,6 +27,5 @@ public class DbClearHandler implements Handler {
         serviceUser.clear();
 
         context.status(200);
-        context.json(null);
     }
 }

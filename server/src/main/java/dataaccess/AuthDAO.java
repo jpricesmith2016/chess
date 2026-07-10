@@ -15,4 +15,8 @@ public interface AuthDAO {
     void deleteAuth(AuthData auth);
 
     void clearAuth();
+
+    Boolean containsAuthToken(String authToken);
+
+    Boolean containsUser(String username);
 }

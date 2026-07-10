@@ -10,7 +10,7 @@ import service.UserService;
 import Request_Result.RegisterRequest;
 import Request_Result.RegisterResult;
 
-import java.lang.reflect.Type;
+import java.util.Map;
 
 public class UserRegHandler implements Handler {
 
@@ -30,6 +30,16 @@ public class UserRegHandler implements Handler {
         RegisterResult result = authService.register(request);
 
         context.status(result.resultCode());
-        context.json(result.message());
+
+        String jsonResult = gson.toJson(Map.of("message", result.message()));
+
+        if (result.resultCode() != 200) {
+            context.contentType("application/json");
+            context.json(jsonResult);
+        } else {
+            jsonResult = gson.toJson(Map.of("username", result.returnAuth().username(),
+                    "authToken", result.returnAuth().authToken()));
+            context.json(jsonResult);
+        }
     }
 }

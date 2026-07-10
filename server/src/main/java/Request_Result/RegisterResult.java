@@ -1,4 +1,4 @@
 package Request_Result;
 
-public record RegisterResult(int resultCode, String username, String authToken, String message) {
+public record RegisterResult(int resultCode, RegAuthReturn returnAuth, String message) {
 }

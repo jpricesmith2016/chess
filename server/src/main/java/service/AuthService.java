@@ -46,13 +46,12 @@ public class AuthService {
         // Insert new User into user database by calling UserDAU.createUser(u)
         // Login the user (Create new AuthToken model object and insert into database) could call login function
         // Return result based on spec by making a Register Result obj and returning it
-        if (regReq.username().isEmpty() || regReq.password().isEmpty()) {
-            return new RegisterResult(400, regReq.username(), "", "Error: bad request");
+        if (regReq.username() == null || regReq.password() == null) {
+            return new RegisterResult(400, new RegAuthReturn(regReq.username(), ""), "Error: bad request");
         }
-        if (authDAO.getAuth(regReq.username()) != null) {
-            return new RegisterResult(403, regReq.username(), "", "Error: already taken");
+        if (userDAO.getUser(regReq.username()) != null) {
+            return new RegisterResult(403, new RegAuthReturn(regReq.username(), ""), "Error: already taken");
         }
-
         do {
             authToken = generateToken();
         } while (authDAO.getAuth(authToken) != null);
@@ -61,7 +60,9 @@ public class AuthService {
 
         userDAO.createUser(new UserData(regReq.username(), regReq.password(), regReq.email()));
 
-        return new RegisterResult(200, regReq.username(), authToken, "");
+        RegAuthReturn returnAuth = new RegAuthReturn(regReq.username(), authToken);
+
+        return new RegisterResult(200, returnAuth, "");
     }
 
 

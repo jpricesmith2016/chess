@@ -10,6 +10,8 @@ import com.google.gson.Gson;
 import service.AuthService;
 import service.GameService;
 
+import java.util.Map;
+
 public class GameJoinHandler implements Handler {
 
     private final GameService service;
@@ -27,12 +29,13 @@ public class GameJoinHandler implements Handler {
         AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
         if (authres.resultCode() != 200) {
             context.status(authres.resultCode());
-            context.json(authres.message());
+            context.json(Map.of("message", authres.message()));
+            return;
         }
         GameJoinRequest request = gson.fromJson(context.body(), GameJoinRequest.class);
         GameJoinResult result = service.joinGame(authToken, request);
 
         context.status(result.resultCode());
-        context.json(result.message());
+        context.json(Map.of("message", result.message()));
     }
 }
