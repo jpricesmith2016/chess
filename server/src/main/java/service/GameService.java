@@ -53,4 +53,8 @@ public class GameService {
         gameDAO.updateGame(gameNew);
         return new GameJoinResult(200, Integer.toString(game.gameID()));
     }
+
+    public void clear() {
+        gameDAO.clearGame();
+    }
 }

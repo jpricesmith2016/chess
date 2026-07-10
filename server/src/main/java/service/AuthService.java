@@ -34,7 +34,11 @@ public class AuthService {
         return new AuthResult(200, "");
     }
 
-    RegisterResult register(RegisterRequest regReq) {
+    public void clear() {
+        authDAO.clearAuth();
+    }
+
+    public RegisterResult register(RegisterRequest regReq) {
         String authToken;
         // Verify input
         // Check request username is not taken (return null)
