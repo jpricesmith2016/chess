@@ -19,9 +19,9 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public ListGamesResult ListGames(String authToken) {
+    public ListGamesResult listGames (String authToken) {
         Collection<GameData> games = new ArrayList<>();
-        return new ListGamesResult(200,games);
+        return new ListGamesResult(200,"", games);
     }
 
     public CreateResult createGame(String authToken, CreateRequest request) {
