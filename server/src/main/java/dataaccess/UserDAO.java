@@ -7,9 +7,9 @@ public interface UserDAO {
 
     UserData getUser(String username);
 
-    void updateUser(UserData user);
+//    void updateUser(UserData user);
 
-    void deleteUser(String username);
+//    void deleteUser(String username);
 
     void clearUser();
 

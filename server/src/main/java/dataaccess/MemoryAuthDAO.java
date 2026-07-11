@@ -19,21 +19,21 @@ public class MemoryAuthDAO implements AuthDAO {
         return authInfo.get(authToken);
     }
 
-    @Override
-    public void updateAuth(AuthData auth) {
-        authInfo.putIfAbsent(auth.authToken(), auth);
-        authInfo.replace(auth.authToken(), auth);
-    }
+//    @Override
+//    public void updateAuth(AuthData auth) {
+//        authInfo.putIfAbsent(auth.authToken(), auth);
+//        authInfo.replace(auth.authToken(), auth);
+//    }
 
     @Override
     public void deleteAuth(String authToken) {
         authInfo.remove(authToken);
     }
 
-    @Override
-    public void deleteAuth(AuthData auth) {
-        authInfo.remove(auth.authToken());
-    }
+//    @Override
+//    public void deleteAuth(AuthData auth) {
+//        authInfo.remove(auth.authToken());
+//    }
 
     @Override
     public void clearAuth() {
@@ -45,11 +45,11 @@ public class MemoryAuthDAO implements AuthDAO {
         return authInfo.containsKey(authToken);
     }
 
-    @Override
-    public Boolean containsUser(String username) {
-        Optional<AuthData> matchingUser = authInfo.values().stream()
-                .filter(auth -> username.equals(auth.username()))
-                .findFirst();
-        return matchingUser.isPresent();
-    }
+//    @Override
+//    public Boolean containsUser(String username) {
+//        Optional<AuthData> matchingUser = authInfo.values().stream()
+//                .filter(auth -> username.equals(auth.username()))
+//                .findFirst();
+//        return matchingUser.isPresent();
+//    }
 }

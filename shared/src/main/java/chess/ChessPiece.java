@@ -103,7 +103,8 @@ public class ChessPiece implements Cloneable {
      * @param game the chess game object
      * @return the updated collection of possible moves
      */
-    private static Collection<ChessMove> addPawnMoves(ChessBoard board, ChessPosition start, ChessPiece pawn, Collection<ChessMove> moves, ChessGame game) {
+    private static Collection<ChessMove> addPawnMoves(ChessBoard board, ChessPosition start,
+                                                      ChessPiece pawn, Collection<ChessMove> moves, ChessGame game) {
         // Initialize helper variables to either reduce calls or length of code
         boolean whiteTeam = pawn.getTeamColor() == ChessGame.TeamColor.WHITE;
         int direction = whiteTeam ? 1 : -1;

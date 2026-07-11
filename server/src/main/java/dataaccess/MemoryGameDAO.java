@@ -20,7 +20,9 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public Collection<GameData> getGameListUser(String username) {
         return new ArrayList<>(gameInfo.entrySet().stream()
-                .filter(entry -> entry.getKey() > 1 && (Objects.equals(entry.getValue().blackUsername(), username) || Objects.equals(entry.getValue().whiteUsername(), username)))
+                .filter(entry -> entry.getKey() > 1
+                        && (Objects.equals(entry.getValue().blackUsername(), username)
+                        || Objects.equals(entry.getValue().whiteUsername(), username)))
                 .map(Map.Entry::getValue)
                 .toList());
     }
@@ -37,10 +39,10 @@ public class MemoryGameDAO implements GameDAO {
         gameInfo.replace(game.gameID(), game);
     }
 
-    @Override
-    public void deleteGame(int gameID) {
-        gameInfo.remove(gameID);
-    }
+//    @Override
+//    public void deleteGame(int gameID) {
+//        gameInfo.remove(gameID);
+//    }
 
     @Override
     public void clearGame() {

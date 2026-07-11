@@ -17,16 +17,16 @@ public class MemoryUserDAO implements UserDAO {
         return userInfo.get(username);
     }
 
-    @Override
-    public void updateUser(UserData user) {
-        userInfo.putIfAbsent(user.username(), user);
-        userInfo.replace(user.username(), user);
-    }
+//    @Override
+//    public void updateUser(UserData user) {
+//        userInfo.putIfAbsent(user.username(), user);
+//        userInfo.replace(user.username(), user);
+//    }
 
-    @Override
-    public void deleteUser(String username) {
-        userInfo.remove(username);
-    }
+//    @Override
+//    public void deleteUser(String username) {
+//        userInfo.remove(username);
+//    }
 
     @Override
     public boolean containsUser (String username) {

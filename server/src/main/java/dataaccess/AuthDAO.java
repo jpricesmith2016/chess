@@ -8,15 +8,15 @@ public interface AuthDAO {
 
     AuthData getAuth(String authToken);
 
-    void updateAuth(AuthData auth);
+//    void updateAuth(AuthData auth);
 
     void deleteAuth(String authToken);
 
-    void deleteAuth(AuthData auth);
+//    void deleteAuth(AuthData auth);
 
     void clearAuth();
 
     Boolean containsAuthToken(String authToken);
 
-    Boolean containsUser(String username);
+//    Boolean containsUser(String username);
 }
