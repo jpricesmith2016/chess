@@ -39,11 +39,6 @@ public class MemoryGameDAO implements GameDAO {
         gameInfo.replace(game.gameID(), game);
     }
 
-//    @Override
-//    public void deleteGame(int gameID) {
-//        gameInfo.remove(gameID);
-//    }
-
     @Override
     public void clearGame() {
         gameInfo.clear();
