@@ -1,9 +1,9 @@
 package handler;
 
-import Request_Result.AuthRequest;
-import Request_Result.AuthResult;
-import Request_Result.GameJoinRequest;
-import Request_Result.GameJoinResult;
+import requestresult.AuthRequest;
+import requestresult.AuthResult;
+import requestresult.GameJoinRequest;
+import requestresult.GameJoinResult;
 import io.javalin.http.Handler;
 import io.javalin.http.Context;
 import com.google.gson.Gson;

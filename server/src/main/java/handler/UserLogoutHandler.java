@@ -1,7 +1,7 @@
 package handler;
 
-import Request_Result.LogoutRequest;
-import Request_Result.LogoutResult;
+import requestresult.LogoutRequest;
+import requestresult.LogoutResult;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;

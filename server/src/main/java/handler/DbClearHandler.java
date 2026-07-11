@@ -1,6 +1,5 @@
 package handler;
 
-import Request_Result.*;
 import io.javalin.http.Handler;
 import io.javalin.http.Context;
 import com.google.gson.Gson;

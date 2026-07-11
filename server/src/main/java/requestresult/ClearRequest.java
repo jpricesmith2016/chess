@@ -1,4 +1,4 @@
-package Request_Result;
+package requestresult;
 
 public class ClearRequest {
 }

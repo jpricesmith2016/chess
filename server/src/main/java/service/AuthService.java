@@ -1,6 +1,6 @@
 package service;
 
-import Request_Result.*;
+import requestresult.*;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import model.AuthData;

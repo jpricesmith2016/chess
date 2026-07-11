@@ -1,4 +1,4 @@
-package Request_Result;
+package requestresult;
 
 public record AuthResult(int resultCode, String message) {
 }

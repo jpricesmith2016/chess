@@ -1,4 +1,4 @@
-package Request_Result;
+package requestresult;
 
 public record ClearResult(int resultCode, String message) {
 }
