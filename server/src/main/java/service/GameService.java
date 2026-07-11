@@ -20,7 +20,7 @@ public class GameService {
     }
 
     public ListGamesResult listGames (String authToken) {
-        Collection<GameData> games = new ArrayList<>();
+        Collection<GameData> games = gameDAO.getGameList();
         return new ListGamesResult(200,"", games);
     }
 
@@ -30,28 +30,30 @@ public class GameService {
         }
         GameData game = new GameData(gameDAO.length() + 1, null, null, request.gameName(), new ChessGame());
 
+        gameDAO.createGame(game);
+
         return new CreateResult(200, game.gameID(), "");
     }
 
     public GameJoinResult joinGame(String authToken, GameJoinRequest request) {
-        if (request.playerColor() == null || gameDAO.getGame(request.gameID()) == null) {
-            return new GameJoinResult(400, "Error: bad request", request.gameID());
+        boolean whiteBool = request.playerColor() != null && request.playerColor().equalsIgnoreCase("WHITE");
+        boolean blackBool = request.playerColor() != null && request.playerColor().equalsIgnoreCase("BLACK");
+        if (gameDAO.getGame(request.gameID()) == null || (!whiteBool && !blackBool)) {
+            return new GameJoinResult(400, "Error: bad request");
         }
         if (!authDAO.containsAuthToken(authToken)) {
-            return new GameJoinResult(401, "Error: unauthorized", request.gameID());
+            return new GameJoinResult(401, "Error: unauthorized");
         }
         AuthData auth = authDAO.getAuth(authToken);
         GameData game = gameDAO.getGame(request.gameID());
-        boolean whiteBool = request.playerColor().equalsIgnoreCase("white") ||
-                request.playerColor().equalsIgnoreCase("w");
         if ((whiteBool && game.whiteUsername() != null) ||
-                (!whiteBool && game.blackUsername() != null)) {
-            return new GameJoinResult(403, "Error: already taken", request.gameID());
+                (blackBool && game.blackUsername() != null)) {
+            return new GameJoinResult(403, "Error: already taken");
         }
         GameData gameNew = new GameData(game.gameID(), whiteBool ? auth.username() : game.whiteUsername(),
                 whiteBool ? game.blackUsername() : auth.username(), game.gameName(), game.game());
         gameDAO.updateGame(gameNew);
-        return new GameJoinResult(200, "", request.gameID());
+        return new GameJoinResult(200, "");
     }
 
     public void clear() {

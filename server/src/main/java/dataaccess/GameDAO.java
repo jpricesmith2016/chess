@@ -10,7 +10,9 @@ public interface GameDAO {
 
     GameData getGame(int gameID);
 
-    Collection<GameData> getGameList(String username);
+    Collection<GameData> getGameListUser(String username);
+
+    Collection<GameData> getGameList();
 
     void updateGame(GameData game);
 

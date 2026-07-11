@@ -5,22 +5,16 @@ import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
-import org.eclipse.jetty.util.log.Log;
 
-import java.security.SecureRandom;
-import java.util.Base64;
+import java.util.UUID;
 
 
 public class AuthService {
     final AuthDAO authDAO;
     final UserDAO userDAO;
 
-    private static String generateToken() {
-        SecureRandom secRand = new SecureRandom();
-
-        byte[] randomBytes = new byte[32];
-        secRand.nextBytes(randomBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
     }
 
     public AuthService(AuthDAO authDAO, UserDAO userDAO) {

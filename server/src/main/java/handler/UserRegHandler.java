@@ -28,7 +28,7 @@ public class UserRegHandler implements Handler {
         RegisterRequest request = gson.fromJson(context.body(), RegisterRequest.class);
         if (request == null) {
             context.status(400);
-            context.json(java.util.Map.of("message", "Error: bad request"));
+            context.json(Map.of("message", "Error: bad request"));
             return;
         }
         RegisterResult result = authService.register(request);

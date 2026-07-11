@@ -18,10 +18,16 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<GameData> getGameList(String username) {
+    public Collection<GameData> getGameListUser(String username) {
         return new ArrayList<>(gameInfo.entrySet().stream()
                 .filter(entry -> entry.getKey() > 1 && (Objects.equals(entry.getValue().blackUsername(), username) || Objects.equals(entry.getValue().whiteUsername(), username)))
                 .map(Map.Entry::getValue)
+                .toList());
+    }
+
+    @Override
+    public Collection<GameData> getGameList() {
+        return new ArrayList<>(gameInfo.values().stream()
                 .toList());
     }
 

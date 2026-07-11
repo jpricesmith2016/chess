@@ -25,10 +25,11 @@ public class UserLogoutHandler implements Handler {
 
         context.status(result.resultCode());
 
+        context.contentType("application/json");
         if (result.resultCode() != 200) {
-            context.json(gson.toJson(Map.of("message", result.message())));
+            context.result(gson.toJson(Map.of("message", result.message())));
         } else {
-            context.contentType("application/json");
+            context.result("");
         }
     }
 }

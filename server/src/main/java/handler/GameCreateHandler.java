@@ -26,24 +26,26 @@ public class GameCreateHandler implements Handler {
         AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
         if (authres.resultCode() != 200) {
             context.status(authres.resultCode());
-            context.json(gson.toJson(Map.of("message", authres.message())));
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", authres.message())));
             return;
         }
 
         CreateRequest request = gson.fromJson(context.body(), CreateRequest.class);
         if (request == null) {
             context.status(400);
-            context.json(gson.toJson(Map.of("message", "Error: bad request")));
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: bad request")));
             return;
         }
         CreateResult result = serviceGame.createGame(authToken, request);
 
         context.status(result.resultCode());
-
+        context.contentType("application/json");
         if (result.resultCode() != 200) {
-            context.json(gson.toJson(Map.of("message", result.message())));
+            context.result(gson.toJson(Map.of("message", result.message())));
         } else {
-            context.json(gson.toJson(Map.of("gameID", result.gameID())));
+            context.result(gson.toJson(Map.of("gameID", result.gameID())));
         }
     }
 }

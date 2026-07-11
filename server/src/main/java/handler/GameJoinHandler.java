@@ -32,15 +32,14 @@ public class GameJoinHandler implements Handler {
             context.json(gson.toJson(Map.of("message", authres.message())));
             return;
         }
-        GameJoinRequest request = gson.fromJson(context.body(), GameJoinRequest.class);
-        GameJoinResult result = service.joinGame(authToken, request);
 
+        GameJoinRequest request = gson.fromJson(context.body(), GameJoinRequest.class);
+
+        GameJoinResult result = service.joinGame(authToken, request);
         context.status(result.resultCode());
 
-        if (result.resultCode() != 20) {
+        if (result.resultCode() != 200) {
             context.json(gson.toJson(Map.of("message", result.message())));
-        } else {
-            context.json(gson.toJson(Map.of("gameID", result.gameID())));
         }
     }
 }
