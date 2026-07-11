@@ -24,7 +24,7 @@ public class Server {
         javalin.delete("/db", new DbClearHandler(gameService, authService, userService));
         javalin.post("/user", new UserRegHandler(userService, authService));
         javalin.post("/session", new UserLoginHandler(authService, userService));
-//        javalin.delete("/session", new UserLogoutHandler());
+        javalin.delete("/session", new UserLogoutHandler(authService));
         javalin.get("/game", new GameListHandler(gameService, authService));
         javalin.post("/game", new GameCreateHandler(gameService, authService));
         javalin.put("/game", new GameJoinHandler(gameService, authService));

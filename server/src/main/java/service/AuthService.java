@@ -47,6 +47,19 @@ public class AuthService {
         }
     }
 
+    public LogoutResult logout(LogoutRequest request) {
+        if ((request.authToken() == null) || (!authDAO.containsAuthToken(request.authToken()))) {
+
+            return new LogoutResult(401, "Error: unauthorized");
+
+        } else {
+
+            authDAO.deleteAuth(request.authToken());
+            return new LogoutResult (200, "");
+
+        }
+    }
+
     public AuthResult auth(AuthRequest req) {
         if (req.authToken() == null || authDAO.getAuth(req.authToken()) == null) {
             return new AuthResult(401, "Error: unauthorized");
