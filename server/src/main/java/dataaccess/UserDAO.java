@@ -12,4 +12,8 @@ public interface UserDAO {
     void deleteUser(String username);
 
     void clearUser();
+
+    boolean containsUser(String username);
+
+    boolean containsPass(String username, String password);
 }

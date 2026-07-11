@@ -5,6 +5,7 @@ import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.eclipse.jetty.util.log.Log;
 
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -25,6 +26,25 @@ public class AuthService {
     public AuthService(AuthDAO authDAO, UserDAO userDAO) {
         this.authDAO = authDAO;
         this.userDAO = userDAO;
+    }
+
+    public LoginResult login (LoginRequest request) {
+        if (request.username() == null || request.password() == null) {
+
+            return new LoginResult(400, "Error: bad request", null);
+
+        } else if ((!userDAO.containsUser(request.username()))
+                && (!userDAO.containsPass(request.username(), request.password()))) {
+
+            return new LoginResult(401, "Error: unauthorized", null);
+
+        } else {
+
+            AuthData auth = new AuthData(generateToken(), request.username());
+            authDAO.createAuth(auth);
+            return new LoginResult(200, null, auth.authToken());
+
+        }
     }
 
     public AuthResult auth(AuthRequest req) {

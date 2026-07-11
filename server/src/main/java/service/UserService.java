@@ -1,5 +1,6 @@
 package service;
 
+import Request_Result.LoginResult;
 import dataaccess.UserDAO;
 
 public class UserService {

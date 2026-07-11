@@ -15,7 +15,7 @@ public class GameCreateHandler implements Handler {
     AuthService serviceAuth;
     private final Gson gson = new Gson();
 
-    GameCreateHandler (GameService serviceGame, AuthService serviceAuth) {
+    public GameCreateHandler(GameService serviceGame, AuthService serviceAuth) {
         this.serviceGame = serviceGame;
         this.serviceAuth = serviceAuth;
     }
