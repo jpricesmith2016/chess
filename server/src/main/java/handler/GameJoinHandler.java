@@ -24,18 +24,23 @@ public class GameJoinHandler implements Handler {
     }
 
     @Override
-    public void handle(Context context) throws Exception {
+    public void handle(Context context) {
         String authToken = context.header("Authorization");
         AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
         if (authres.resultCode() != 200) {
             context.status(authres.resultCode());
-            context.json(Map.of("message", authres.message()));
+            context.json(gson.toJson(Map.of("message", authres.message())));
             return;
         }
         GameJoinRequest request = gson.fromJson(context.body(), GameJoinRequest.class);
         GameJoinResult result = service.joinGame(authToken, request);
 
         context.status(result.resultCode());
-        context.json(Map.of("message", result.message()));
+
+        if (result.resultCode() != 20) {
+            context.json(gson.toJson(Map.of("message", result.message())));
+        } else {
+            context.json(gson.toJson(Map.of("gameID", result.gameID())));
+        }
     }
 }

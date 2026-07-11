@@ -33,8 +33,7 @@ public class AuthService {
 
             return new LoginResult(400, "Error: bad request", null);
 
-        } else if ((!userDAO.containsUser(request.username()))
-                && (!userDAO.containsPass(request.username(), request.password()))) {
+        } else if (!userDAO.containsUser(request.username()) || !userDAO.containsPass(request.username(), request.password())) {
 
             return new LoginResult(401, "Error: unauthorized", null);
 
@@ -42,7 +41,7 @@ public class AuthService {
 
             AuthData auth = new AuthData(generateToken(), request.username());
             authDAO.createAuth(auth);
-            return new LoginResult(200, null, auth.authToken());
+            return new LoginResult(200, "", auth.authToken());
 
         }
     }

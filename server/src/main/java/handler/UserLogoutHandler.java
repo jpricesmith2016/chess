@@ -11,7 +11,7 @@ import service.AuthService;
 import java.util.Map;
 
 public class UserLogoutHandler implements Handler {
-    AuthService serviceAuth;
+    final AuthService serviceAuth;
     Gson gson = new Gson();
 
     public UserLogoutHandler(AuthService serviceAuth) {
@@ -19,14 +19,14 @@ public class UserLogoutHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws Exception {
+    public void handle(@NotNull Context context) {
         LogoutRequest request = new LogoutRequest(context.header("Authorization"));
         LogoutResult result = serviceAuth.logout(request);
 
         context.status(result.resultCode());
 
         if (result.resultCode() != 200) {
-            context.json(Map.of("message", result.message()));
+            context.json(gson.toJson(Map.of("message", result.message())));
         } else {
             context.contentType("application/json");
         }

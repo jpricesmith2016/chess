@@ -35,12 +35,12 @@ public class ServerMain {
     }
 
     private void createHandlers(Javalin javalinServer) {
-//        javalinServer.delete("/db", new DbClearHandler());
-//        javalinServer.post("/user", new UserRegHandler());
-//        javalinServer.post("/session", new UserLoginHandler());
-//        javalinServer.delete("/session", new UserLogoutHandler());
-//        javalinServer.get("/game", new GameListHandler());
-//        javalinServer.post("/game", new GameCreateHandler());
+        javalinServer.delete("/db", new DbClearHandler(gameService, authService, userService));
+        javalinServer.post("/user", new UserRegHandler(userService, authService));
+        javalinServer.post("/session", new UserLoginHandler(authService, userService));
+        javalinServer.delete("/session", new UserLogoutHandler(authService));
+        javalinServer.get("/game", new GameListHandler(gameService, authService));
+        javalinServer.post("/game", new GameCreateHandler(gameService, authService));
         javalinServer.put("/game", new GameJoinHandler(gameService, authService));
 
     }

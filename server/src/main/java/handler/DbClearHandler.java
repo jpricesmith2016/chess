@@ -21,7 +21,7 @@ public class DbClearHandler implements Handler {
     }
 
     @Override
-    public void handle(Context context) throws Exception {
+    public void handle(Context context) {
         serviceGame.clear();
         serviceAuth.clear();
         serviceUser.clear();

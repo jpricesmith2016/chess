@@ -36,7 +36,7 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public boolean containsPass (String username, String password) {
         UserData temp = userInfo.get(username);
-        return (temp.password().equals(password));
+        return (temp != null && temp.password().equals(password));
     }
 
     @Override

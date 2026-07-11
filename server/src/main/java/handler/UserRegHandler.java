@@ -14,8 +14,8 @@ import java.util.Map;
 
 public class UserRegHandler implements Handler {
 
-    UserService userService;
-    AuthService authService;
+    final UserService userService;
+    final AuthService authService;
     private final Gson gson = new Gson();
 
     public UserRegHandler (UserService userService, AuthService authService) {
@@ -24,9 +24,13 @@ public class UserRegHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws Exception {
-
+    public void handle(@NotNull Context context) {
         RegisterRequest request = gson.fromJson(context.body(), RegisterRequest.class);
+        if (request == null) {
+            context.status(400);
+            context.json(java.util.Map.of("message", "Error: bad request"));
+            return;
+        }
         RegisterResult result = authService.register(request);
 
         context.status(result.resultCode());

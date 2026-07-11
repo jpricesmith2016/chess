@@ -20,12 +20,12 @@ public class GameListHandler implements Handler {
     }
 
     @Override
-    public void handle(Context context) throws Exception {
+    public void handle(Context context) {
         String authToken = context.header("Authorization");
         AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
         if (authres.resultCode() != 200) {
             context.status(authres.resultCode());
-            context.json(Map.of("message", authres.message()));
+            context.json(gson.toJson(Map.of("message", authres.message())));
             return;
         }
         ListGamesResult result = service.listGames(authToken);
@@ -33,9 +33,9 @@ public class GameListHandler implements Handler {
         context.status(result.resultCode());
 
         if (result.resultCode() != 200) {
-            context.json(Map.of("message", result.message()));
+            context.json(gson.toJson(Map.of("message", result.message())));
         } else {
-            context.json(Map.of("games", result.games()));
+            context.json(gson.toJson(Map.of("games", result.games())));
         }
     }
 }
