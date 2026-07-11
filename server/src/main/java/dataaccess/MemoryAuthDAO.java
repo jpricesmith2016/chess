@@ -33,11 +33,4 @@ public class MemoryAuthDAO implements AuthDAO {
         return authInfo.containsKey(authToken);
     }
 
-//    @Override
-//    public Boolean containsUser(String username) {
-//        Optional<AuthData> matchingUser = authInfo.values().stream()
-//                .filter(auth -> username.equals(auth.username()))
-//                .findFirst();
-//        return matchingUser.isPresent();
-//    }
 }
