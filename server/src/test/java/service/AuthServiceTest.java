@@ -25,7 +25,11 @@ class AuthServiceTest {
     public static void makeServiceWithNewUser() {
         MemoryAuthDAO authDAO = new MemoryAuthDAO();
         MemoryUserDAO userDAO = new MemoryUserDAO();
-        userDAO.createUser(new UserData("alice", "correct-pass", "test@gmail.com"));
+        try {
+            userDAO.createUser(new UserData("alice", "correct-pass", "test@gmail.com"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         service = new AuthService(authDAO, userDAO);
     }
 
@@ -37,7 +41,11 @@ class AuthServiceTest {
         assertEquals(200, result.resultCode());
         assertEquals("", result.message());
         assertNotNull(result.authToken());
-        assertNotNull(service.authDAO.getAuth(result.authToken()));
+        try {
+            assertNotNull(service.authDAO.getAuth(result.authToken()));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -53,29 +61,49 @@ class AuthServiceTest {
     @Test
     void logoutSucceedsKnownToken() {
         String token = AuthService.generateToken();
-        service.authDAO.createAuth(new AuthData(token, "alice"));
+        try {
+            service.authDAO.createAuth(new AuthData(token, "alice"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         LogoutResult result = service.logout(new LogoutRequest(token));
 
         assertEquals(200, result.resultCode());
-        assertFalse(service.authDAO.containsAuthToken(token));
+        try {
+            assertFalse(service.authDAO.containsAuthToken(token));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     void logoutFailsUnknownToken() {
         String token = AuthService.generateToken();
-        service.authDAO.createAuth(new AuthData(token, "alice"));
+        try {
+            service.authDAO.createAuth(new AuthData(token, "alice"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         LogoutResult result = service.logout(new LogoutRequest("bad-token"));
 
         assertEquals(401, result.resultCode());
-        assertTrue(service.authDAO.containsAuthToken(token));
+        try {
+            assertTrue(service.authDAO.containsAuthToken(token));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     void authSucceedsKnownToken() {
         String token = AuthService.generateToken();
-        service.authDAO.createAuth(new AuthData(token, "alice"));
+        try {
+            service.authDAO.createAuth(new AuthData(token, "alice"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         var result = service.auth(new AuthRequest(token));
 
@@ -93,11 +121,19 @@ class AuthServiceTest {
     @Test
     void clearAuthEntries() {
         String token = AuthService.generateToken();
-        service.authDAO.createAuth(new AuthData(token, "alice"));
+        try {
+            service.authDAO.createAuth(new AuthData(token, "alice"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         service.clear();
 
-        assertFalse(service.authDAO.containsAuthToken(token));
+        try {
+            assertFalse(service.authDAO.containsAuthToken(token));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -108,8 +144,16 @@ class AuthServiceTest {
         assertEquals(200, result.resultCode());
         assertNotNull(result.returnAuth());
         assertEquals("joe", result.returnAuth().username());
-        assertTrue(service.userDAO.containsUser("joe"));
-        assertTrue(service.userDAO.containsPass("joe", "secret"));
+        try {
+            assertTrue(service.userDAO.containsUser("joe"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            assertTrue(service.userDAO.containsPass("joe", "secret"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -119,6 +163,10 @@ class AuthServiceTest {
 
         assertEquals(403, result.resultCode());
         assertEquals("Error: already taken", result.message());
-        assertTrue(service.userDAO.containsPass("alice", "correct-pass"));
+        try {
+            assertTrue(service.userDAO.containsPass("alice", "correct-pass"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

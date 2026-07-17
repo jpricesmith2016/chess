@@ -1,19 +1,20 @@
 package dataaccess;
 
+import dataaccess.exceptions.DataAccessException;
 import model.UserData;
 
 public interface UserDAO {
-    void createUser(UserData u);
+    void createUser(UserData u) throws DataAccessException;
 
-    UserData getUser(String username);
+    UserData getUser(String username) throws DataAccessException;
 
 //    void updateUser(UserData user);
 
 //    void deleteUser(String username);
 
-    void clearUser();
+    void clearUser() throws DataAccessException;
 
-    boolean containsUser(String username);
+    boolean containsUser(String username) throws DataAccessException;
 
-    boolean containsPass(String username, String password);
+    boolean containsPass(String username, String password) throws DataAccessException;
 }

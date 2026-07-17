@@ -1,24 +1,25 @@
 package dataaccess;
 
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.DataAccessException;
 import model.GameData;
 
 import java.util.Collection;
 
 public interface GameDAO {
 
-    void createGame(GameData g);
+    void createGame(GameData g) throws DataAccessException;
 
-    GameData getGame(int gameID);
+    GameData getGame(int gameID) throws DataAccessException;
 
-    Collection<GameData> getGameListUser(String username);
+    Collection<GameData> getGameListUser(String username) throws DataAccessException;
 
-    Collection<GameData> getGameList();
+    Collection<GameData> getGameList() throws DataAccessException;
 
-    void updateGame(GameData game);
+    void updateGame(GameData game) throws DataAccessException;
 
-//    void deleteGame(int gameID);
 
-    void clearGame();
+    void clearGame() throws DataAccessException;
 
-    int length();
+    int length() throws DataAccessException;
 }

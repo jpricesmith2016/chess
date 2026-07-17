@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.exceptions.DataAccessException;
 import requestresult.*;
 import chess.ChessGame;
 import dataaccess.AuthDAO;
@@ -18,23 +19,27 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public ListGamesResult listGames (String authToken) {
+    public ListGamesResult listGames (String authToken) throws DataAccessException {
         Collection<GameData> games = gameDAO.getGameList();
         return new ListGamesResult(200,"", games);
     }
 
-    public CreateResult createGame(String authToken, CreateRequest request) {
+    public CreateResult createGame(String authToken, CreateRequest request) throws DataAccessException {
         if (request.gameName() == null || request.gameName().isEmpty()) {
             return new CreateResult(400,0, "Error: bad request");
         }
         GameData game = new GameData(gameDAO.length() + 1, null, null, request.gameName(), new ChessGame());
 
-        gameDAO.createGame(game);
+        try {
+            gameDAO.createGame(game);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         return new CreateResult(200, game.gameID(), "");
     }
 
-    public GameJoinResult joinGame(String authToken, GameJoinRequest request) {
+    public GameJoinResult joinGame(String authToken, GameJoinRequest request) throws DataAccessException {
         boolean whiteBool = request.playerColor() != null && request.playerColor().equalsIgnoreCase("WHITE");
         boolean blackBool = request.playerColor() != null && request.playerColor().equalsIgnoreCase("BLACK");
         if (gameDAO.getGame(request.gameID()) == null || (!whiteBool && !blackBool)) {
@@ -55,7 +60,7 @@ public class GameService {
         return new GameJoinResult(200, "");
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         gameDAO.clearGame();
     }
 }

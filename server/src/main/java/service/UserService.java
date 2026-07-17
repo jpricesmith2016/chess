@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.UserDAO;
+import dataaccess.exceptions.DataAccessException;
 
 public class UserService {
 
@@ -10,7 +11,7 @@ public class UserService {
         this.userDAO = userDAO;
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         userDAO.clearUser();
     }
 }

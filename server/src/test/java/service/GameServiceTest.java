@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.exceptions.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import model.AuthData;
@@ -22,7 +23,11 @@ class GameServiceTest {
     @BeforeEach
     public void makeServiceWithAuth() {
         MemoryAuthDAO authDAO = new MemoryAuthDAO();
-        authDAO.createAuth(new AuthData("auth-token", "alice"));
+        try {
+            authDAO.createAuth(new AuthData("auth-token", "alice"));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         service = new GameService(new MemoryGameDAO(), authDAO);
     }
 
@@ -47,7 +52,7 @@ class GameServiceTest {
     }
 
     @Test
-    void createGameSucceedsValidName() {
+    void createGameSucceedsValidName() throws DataAccessException {
 
         CreateResult result = service.createGame("auth-token", new CreateRequest("Valid Game"));
 
@@ -78,7 +83,11 @@ class GameServiceTest {
 
     @Test
     void joinGameFailsAlreadyTaken() {
-        service.gameDAO.createGame(new GameData(1, "existing-user", null, "Taken", new ChessGame()));
+        try {
+            service.gameDAO.createGame(new GameData(1, "existing-user", null, "Taken", new ChessGame()));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         GameJoinResult result = service.joinGame("auth-token", new GameJoinRequest("WHITE", 1));
 

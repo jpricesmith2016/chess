@@ -34,7 +34,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(GameData game) {
+    public void updateGame(GameData game){
         gameInfo.putIfAbsent(game.gameID(), game);
         gameInfo.replace(game.gameID(), game);
     }

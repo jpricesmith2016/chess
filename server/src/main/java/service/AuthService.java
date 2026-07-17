@@ -27,41 +27,61 @@ public class AuthService {
 
             return new LoginResult(400, "Error: bad request", null);
 
-        } else if (!userDAO.containsUser(request.username()) || !userDAO.containsPass(request.username(), request.password())) {
+        } else try {
+            if (!userDAO.containsUser(request.username()) || !userDAO.containsPass(request.username(), request.password())) {
 
-            return new LoginResult(401, "Error: unauthorized", null);
+                return new LoginResult(401, "Error: unauthorized", null);
 
-        } else {
+            } else {
 
-            AuthData auth = new AuthData(generateToken(), request.username());
-            authDAO.createAuth(auth);
-            return new LoginResult(200, "", auth.authToken());
+                AuthData auth = new AuthData(generateToken(), request.username());
+                authDAO.createAuth(auth);
+                return new LoginResult(200, "", auth.authToken());
 
+            }
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public LogoutResult logout(LogoutRequest request) {
-        if ((request.authToken() == null) || (!authDAO.containsAuthToken(request.authToken()))) {
+        try {
+            if ((request.authToken() == null) || (!authDAO.containsAuthToken(request.authToken()))) {
 
-            return new LogoutResult(401, "Error: unauthorized");
+                return new LogoutResult(401, "Error: unauthorized");
 
-        } else {
+            } else {
 
-            authDAO.deleteAuth(request.authToken());
-            return new LogoutResult (200, "");
+                try {
+                    authDAO.deleteAuth(request.authToken());
+                } catch (dataaccess.exceptions.DataAccessException e) {
+                    throw new RuntimeException(e);
+                }
+                return new LogoutResult (200, "");
 
+            }
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public AuthResult auth(AuthRequest req) {
-        if (req.authToken() == null || authDAO.getAuth(req.authToken()) == null) {
-            return new AuthResult(401, "Error: unauthorized");
+        try {
+            if (req.authToken() == null || authDAO.getAuth(req.authToken()) == null) {
+                return new AuthResult(401, "Error: unauthorized");
+            }
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
         }
         return new AuthResult(200, "");
     }
 
     public void clear() {
-        authDAO.clearAuth();
+        try {
+            authDAO.clearAuth();
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public RegisterResult register(RegisterRequest regReq) {
@@ -75,16 +95,32 @@ public class AuthService {
         if (regReq.username() == null || regReq.password() == null) {
             return new RegisterResult(400, new RegAuthReturn(regReq.username(), ""), "Error: bad request");
         }
-        if (userDAO.getUser(regReq.username()) != null) {
-            return new RegisterResult(403, new RegAuthReturn(regReq.username(), ""), "Error: already taken");
+        try {
+            if (userDAO.getUser(regReq.username()) != null) {
+                return new RegisterResult(403, new RegAuthReturn(regReq.username(), ""), "Error: already taken");
+            }
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
         }
-        do {
-            authToken = generateToken();
-        } while (authDAO.getAuth(authToken) != null);
+        try {
+            do {
+                authToken = generateToken();
+            } while (authDAO.getAuth(authToken) != null);
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
-        authDAO.createAuth(new AuthData(authToken, regReq.username()));
+        try {
+            authDAO.createAuth(new AuthData(authToken, regReq.username()));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
-        userDAO.createUser(new UserData(regReq.username(), regReq.password(), regReq.email()));
+        try {
+            userDAO.createUser(new UserData(regReq.username(), regReq.password(), regReq.email()));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         RegAuthReturn returnAuth = new RegAuthReturn(regReq.username(), authToken);
 

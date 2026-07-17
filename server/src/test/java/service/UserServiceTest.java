@@ -11,11 +11,19 @@ class UserServiceTest {
     @Test
     void clearAllUsers() {
         MemoryUserDAO userDAO = new MemoryUserDAO();
-        userDAO.createUser(new UserData("alice", "password", "alice@gmail.com"));
+        try {
+            userDAO.createUser(new UserData("alice", "password", "alice@gmail.com"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         UserService service = new UserService(userDAO);
 
         service.clear();
 
-        assertNull(userDAO.getUser("alice"));
+        try {
+            assertNull(userDAO.getUser("alice"));
+        } catch (dataaccess.exceptions.DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
