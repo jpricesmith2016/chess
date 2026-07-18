@@ -30,17 +30,26 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
-        var statement = "SELECT id, userBlack, userWhite, gameName, gameState FROM game WHERE id=?";
+        var statement = """
+                SELECT id, userWhite, userBlack, gameName, gameState
+                FROM game
+                WHERE id = ?
+                """;
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 ps.setInt(1,gameID);
-                ps.executeQuery();
 
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return new GameData(rs.getInt(1), rs.getString(2)
-                            , rs.getString(3), rs.getString(4)
-                            , new Gson().fromJson(rs.getString(5), ChessGame.class));
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new GameData(
+                                rs.getInt(1),
+                                rs.getString(2),
+                                rs.getString(3),
+                                rs.getString(4),
+                                new Gson().fromJson(rs.getString(5), ChessGame.class)
+                        );
+                    }
                 }
 
             }
@@ -52,20 +61,24 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public Collection<GameData> getGameListUser(String username) throws DataAccessException {
-        var statement = "SELECT id, userBlack, userWhite, gameName, gameState FROM game WHERE userBlack=? OR userWhite=?";
+        var statement = "SELECT id, userWhite, userBlack, gameName, gameState FROM game WHERE userBlack=? OR userWhite=?";
         return gameListPuller(statement);
     }
 
     @Override
     public Collection<GameData> getGameList() throws DataAccessException {
-        var statement = "SELECT id, userBlack, userWhite, gameName, gameState FROM game";
+        var statement = "SELECT id, userWhite, userBlack, gameName, gameState FROM game";
         return gameListPuller(statement);
     }
 
     @Override
     public void updateGame(GameData g) throws DataAccessException {
-        var statement = "UPDATE game SET userBlack=?, userWhite=?, gameState=? WHERE id=?";
-        executeUpdate(statement, g.blackUsername(), g.whiteUsername(), new Gson().toJson(g.game()), g.gameID());
+        var statement = """
+                UPDATE game
+                SET userWhite = ?, userBlack = ?, gameState = ?
+                WHERE id = ?
+                """;
+        executeUpdate(statement, g.whiteUsername(), g.blackUsername(), new Gson().toJson(g.game()), g.gameID());
     }
 
     @Override
@@ -133,8 +146,8 @@ public class SQLGameDAO implements GameDAO{
             """
             CREATE TABLE IF NOT EXISTS game (
               `id` INT NOT NULL AUTO_INCREMENT,
-              `userBlack` VARCHAR(256) DEFAULT NULL,
               `userWhite` VARCHAR(256) DEFAULT NULL,
+              `userBlack` VARCHAR(256) DEFAULT NULL,
               `gameName` VARCHAR(256) NOT NULL,
               `gameState` longtext NOT NULL,
               PRIMARY KEY (`id`)
