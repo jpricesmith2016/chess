@@ -8,8 +8,6 @@ import service.AuthService;
 import service.GameService;
 import service.UserService;
 
-import java.util.Map;
-
 public class Server {
 
 
@@ -17,7 +15,6 @@ public class Server {
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-        registerExceptionHandlers();
         try {
             AuthDAO authDAO = new SQLAuthDAO();
             UserDAO userDAO = new SQLUserDAO();
@@ -35,24 +32,6 @@ public class Server {
         } catch (Exception e) {
             System.out.printf("Unable to start server: %s%n", e.getMessage());
         }
-    }
-
-    private void registerExceptionHandlers() {
-        javalin.exception(DataAccessException.class, (e, ctx) -> {
-            ctx.status(500);
-            ctx.json(Map.of("message", "Error: " + sanitizeMessage(e.getMessage())));
-        });
-        javalin.exception(Exception.class, (e, ctx) -> {
-            ctx.status(500);
-            ctx.json(Map.of("message", "Error: " + sanitizeMessage(e.getMessage())));
-        });
-    }
-
-    private String sanitizeMessage(String message) {
-        if (message == null || message.isBlank()) {
-            return "internal server error";
-        }
-        return message;
     }
 
     public int run(int desiredPort) {
