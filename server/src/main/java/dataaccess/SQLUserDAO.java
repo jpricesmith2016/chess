@@ -2,8 +2,8 @@ package dataaccess;
 
 import com.google.gson.Gson;
 import dataaccess.exceptions.DataAccessException;
-import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 
@@ -11,6 +11,10 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class SQLUserDAO implements UserDAO{
+
+    public SQLUserDAO() throws DataAccessException {
+        configureDatabase();
+    }
 
     @Override
     public void createUser(UserData u) throws DataAccessException {
@@ -29,18 +33,19 @@ public class SQLUserDAO implements UserDAO{
 
     @Override
     public boolean containsPass(String username, String password) throws DataAccessException {
-        var statement = "SELECT authToken, authData FROM auth WHERE authToken=?";
+        var statement = "SELECT username, passwordEnc FROM user WHERE username=?";
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1,username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         var hashedPass = rs.getString("passwordEnc");
+                        return BCrypt.checkpw(password, hashedPass);
                     }
                 }
             }
         }catch (Exception e) {
-            throw new DataAccessException(String.format("unable to get Auth: %s, %s", statement, e.getMessage()), e);
+            throw new DataAccessException(String.format("unable to get Password: %s, %s", statement, e.getMessage()), e);
         }
         return false;
     }
@@ -75,13 +80,11 @@ public class SQLUserDAO implements UserDAO{
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS user (
-              'id' INT NOT NULL AUTO_INCREMENT,
               'username' varchar(256) NOT NULL,
               'passwordEnc' varchar(256) NOT NULL,
-              'email; varchar(256) NOT NULL,
-              PRIMARY KEY ('id'),
+              'email; varchar(256) DEFAULT NULL,
+              PRIMARY KEY ('username'),
               INDEX ('passwordEnc')
-              INDEX ('username')
             );
             """
     };
