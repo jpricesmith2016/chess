@@ -8,8 +8,9 @@ public class MemoryGameDAO implements GameDAO {
     final Map<Integer, GameData> gameInfo = new HashMap<>();
 
     @Override
-    public void createGame(GameData g) {
+    public int createGame(GameData g) {
         gameInfo.putIfAbsent(g.gameID(), g);
+        return g.gameID();
     }
 
     @Override
@@ -42,10 +43,5 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public void clearGame() {
         gameInfo.clear();
-    }
-
-    @Override
-    public int length() {
-        return gameInfo.size();
     }
 }

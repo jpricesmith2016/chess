@@ -21,7 +21,7 @@ public class SQLAuthDAO implements AuthDAO{
         String authToken = a.authToken();
         String jsonAuthData = new Gson().toJson(a);
         if (getAuth(a.authToken()) != null) {
-            throw new DataAccessException(String.format("unable to create Auth: AuthToken Already Taken: %s", statement));
+            throw new AlreadyTakenException();
         }
         executeUpdate(statement, authToken, jsonAuthData);
     }

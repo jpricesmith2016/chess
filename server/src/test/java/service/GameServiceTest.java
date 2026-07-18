@@ -65,7 +65,7 @@ class GameServiceTest {
         CreateResult result = service.createGame("auth-token", new CreateRequest(""));
 
         assertEquals(400, result.resultCode());
-        assertEquals(0, service.gameDAO.length());
+        assertEquals(0, service.gameDAO.getGameList().size());
     }
 
     @Test
@@ -99,6 +99,6 @@ class GameServiceTest {
 
         service.clear();
 
-        assertEquals(0, service.gameDAO.length());
+        assertEquals(0, service.gameDAO.getGameList().size());
     }
 }

@@ -28,15 +28,17 @@ public class GameService {
         if (request.gameName() == null || request.gameName().isEmpty()) {
             return new CreateResult(400,0, "Error: bad request");
         }
-        GameData game = new GameData(gameDAO.length() + 1, null, null, request.gameName(), new ChessGame());
+        ChessGame chessGame = new ChessGame();
+        GameData game = new GameData(gameDAO.getGameList().toArray().length + 1, null, null, request.gameName(), chessGame);
 
         try {
-            gameDAO.createGame(game);
+            int gameID = gameDAO.createGame(game);
+            game = new GameData(gameID, null, null, request.gameName(), chessGame);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
 
-        return new CreateResult(200, game.gameID(), "");
+        return new CreateResult(200, gameID(), "");
     }
 
     public GameJoinResult joinGame(String authToken, GameJoinRequest request) throws DataAccessException {

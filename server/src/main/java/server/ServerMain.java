@@ -30,8 +30,8 @@ public class ServerMain {
                 requestedPort = Integer.parseInt(args[0]);
             }
 
-            authDAO = new SQLAuthDAO();
-            userDAO = new SQLUserDAO();
+            authDAO = new MemoryAuthDAO();
+            userDAO = new MemoryUserDAO();
             gameDAO = new MemoryGameDAO();
 
             var server = new ServerMain();
