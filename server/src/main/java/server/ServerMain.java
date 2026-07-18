@@ -30,9 +30,9 @@ public class ServerMain {
                 requestedPort = Integer.parseInt(args[0]);
             }
 
-            authDAO = new MemoryAuthDAO();
-            userDAO = new MemoryUserDAO();
-            gameDAO = new MemoryGameDAO();
+            authDAO = new SQLAuthDAO();
+            userDAO = new SQLUserDAO();
+            gameDAO = new SQLGameDAO();
 
             var server = new ServerMain();
             int port = server.run(requestedPort);
