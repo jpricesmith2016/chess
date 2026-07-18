@@ -12,7 +12,7 @@ import static java.sql.Types.NULL;
 
 public class SQLUserDAO implements UserDAO{
 
-    public SQLUserDAO() throws DataAccessException {
+    public SQLUserDAO() throws Exception {
         configureDatabase();
     }
 
@@ -97,7 +97,7 @@ public class SQLUserDAO implements UserDAO{
             """
     };
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureDatabase() throws SQLException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
@@ -106,7 +106,7 @@ public class SQLUserDAO implements UserDAO{
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new SQLException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 }

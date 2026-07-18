@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.*;
+import dataaccess.exceptions.DataAccessException;
 import handler.*;
 import io.javalin.*;
 import service.AuthService;
@@ -9,27 +10,28 @@ import service.UserService;
 
 public class Server {
 
-    final AuthDAO authDAO = new MemoryAuthDAO();
-    final UserDAO userDAO = new MemoryUserDAO();
-    final GameDAO gameDAO = new MemoryGameDAO();
-
-    final AuthService authService = new AuthService(authDAO, userDAO);
-    final UserService userService = new UserService(userDAO);
-    final GameService gameService = new GameService(gameDAO, authDAO);
 
     private final Javalin javalin;
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-        javalin.delete("/db", new DbClearHandler(gameService, authService, userService));
-        javalin.post("/user", new UserRegHandler(userService, authService));
-        javalin.post("/session", new UserLoginHandler(authService, userService));
-        javalin.delete("/session", new UserLogoutHandler(authService));
-        javalin.get("/game", new GameListHandler(gameService, authService));
-        javalin.post("/game", new GameCreateHandler(gameService, authService));
-        javalin.put("/game", new GameJoinHandler(gameService, authService));
-        // Register your endpoints and exception handlers here.
-
+        try {
+            AuthDAO authDAO = new SQLAuthDAO();
+            UserDAO userDAO = new SQLUserDAO();
+            GameDAO gameDAO = new SQLGameDAO();
+            AuthService authService = new AuthService(authDAO, userDAO);
+            UserService userService = new UserService(userDAO);
+            GameService gameService = new GameService(gameDAO, authDAO);
+            javalin.delete("/db", new DbClearHandler(gameService, authService, userService));
+            javalin.post("/user", new UserRegHandler(userService, authService));
+            javalin.post("/session", new UserLoginHandler(authService, userService));
+            javalin.delete("/session", new UserLogoutHandler(authService));
+            javalin.get("/game", new GameListHandler(gameService, authService));
+            javalin.post("/game", new GameCreateHandler(gameService, authService));
+            javalin.put("/game", new GameJoinHandler(gameService, authService));
+        } catch (Exception e) {
+            System.out.printf("Unable to start server: %s%n", e.getMessage());
+        }
     }
 
     public int run(int desiredPort) {

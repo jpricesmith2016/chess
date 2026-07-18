@@ -11,7 +11,7 @@ import static java.sql.Types.NULL;
 
 public class SQLAuthDAO implements AuthDAO{
 
-    public SQLAuthDAO() throws DataAccessException {
+    public SQLAuthDAO() throws Exception {
         configureDatabase();
     }
 
@@ -99,12 +99,12 @@ public class SQLAuthDAO implements AuthDAO{
             CREATE TABLE IF NOT EXISTS auth (
               `authToken` varchar(256) NOT NULL,
               `authData` longtext NOT NULL,
-              PRIMARY KEY (`authToken`),
+              PRIMARY KEY (`authToken`)
             );
             """
     };
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureDatabase() throws SQLException, DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
@@ -113,7 +113,7 @@ public class SQLAuthDAO implements AuthDAO{
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new SQLException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 }

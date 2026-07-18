@@ -15,6 +15,11 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class SQLGameDAO implements GameDAO{
+
+    public SQLGameDAO() throws Exception {
+        configureDatabase();
+    }
+
     @Override
     public int createGame(GameData g) throws DataAccessException {
         var statement = "INSERT INTO game (gameName, gameState) VALUES (?, ?)";
@@ -29,7 +34,7 @@ public class SQLGameDAO implements GameDAO{
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 ps.setInt(1,gameID);
-                ps.executeUpdate();
+                ps.executeQuery();
 
                 ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
@@ -40,7 +45,7 @@ public class SQLGameDAO implements GameDAO{
 
             }
         } catch (Exception e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()), e);
+            throw new DataAccessException(String.format("unable to getGame: %s, %s", statement, e.getMessage()), e);
         }
         return null;
     }
@@ -60,7 +65,7 @@ public class SQLGameDAO implements GameDAO{
     @Override
     public void updateGame(GameData g) throws DataAccessException {
         var statement = "UPDATE game SET userBlack=?, userWhite=?, gameState=? WHERE id=?";
-        executeUpdate(statement, g.blackUsername(), g.whiteUsername(), g.game(), g.gameID());
+        executeUpdate(statement, g.blackUsername(), g.whiteUsername(), new Gson().toJson(g.game()), g.gameID());
     }
 
     @Override
@@ -137,7 +142,7 @@ public class SQLGameDAO implements GameDAO{
             """
     };
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureDatabase() throws SQLException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
@@ -146,7 +151,7 @@ public class SQLGameDAO implements GameDAO{
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new SQLException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 }
