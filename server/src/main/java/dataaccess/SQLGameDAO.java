@@ -26,13 +26,29 @@ public class SQLGameDAO implements GameDAO{
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         var statement = "SELECT id, userBlack, userWhite, gameName, gameState FROM game WHERE id=?";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                ps.setInt(1,gameID);
+                ps.executeUpdate();
 
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return new GameData(rs.getInt(1), rs.getString(2)
+                            , rs.getString(3), rs.getString(4)
+                            , new Gson().fromJson(rs.getString(5), ChessGame.class));
+                }
+
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()), e);
+        }
         return null;
     }
 
     @Override
     public Collection<GameData> getGameListUser(String username) throws DataAccessException {
-        return List.of();
+        var statement = "SELECT id, userBlack, userWhite, gameName, gameState FROM game WHERE userBlack=? OR userWhite=?";
+        return gameListPuller(statement);
     }
 
     @Override
@@ -43,12 +59,14 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public void updateGame(GameData g) throws DataAccessException {
-
+        var statement = "UPDATE game SET userBlack=?, userWhite=?, gameState=? WHERE id=?";
+        executeUpdate(statement, g.blackUsername(), g.whiteUsername(), g.game(), g.gameID());
     }
 
     @Override
     public void clearGame() throws DataAccessException {
-
+        var statement = "TRUNCATE game";
+        executeUpdate(statement);
     }
 
     private Collection<GameData> gameListPuller (String statement,  Object... params) throws DataAccessException {
@@ -109,14 +127,12 @@ public class SQLGameDAO implements GameDAO{
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS game (
-              'id' INT NOT NULL AUTO_INCREMENT,
-              'userBlack' VARCHAR(256) DEFAULT NULL,
-              'userWhite' VARCHAR(256) DEFAULT NULL,
-              'gameName' VARCHAR(256) NOT NULL,
-              'gameState' longtext NOT NULL,
-              PRIMARY KEY ('id'),
-              FOREIGN KEY ('userBlack'),
-              FOREIGN KEY ('userWhite')
+              `id` INT NOT NULL AUTO_INCREMENT,
+              `userBlack` VARCHAR(256) DEFAULT NULL,
+              `userWhite` VARCHAR(256) DEFAULT NULL,
+              `gameName` VARCHAR(256) NOT NULL,
+              `gameState` longtext NOT NULL,
+              PRIMARY KEY (`id`)
             );
             """
     };
