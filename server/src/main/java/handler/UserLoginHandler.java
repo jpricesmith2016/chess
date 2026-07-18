@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.exceptions.DataAccessException;
 import requestresult.LoginRequest;
 import requestresult.LoginResult;
 import com.google.gson.Gson;
@@ -23,7 +24,7 @@ public class UserLoginHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) {
+    public void handle(@NotNull Context context) throws DataAccessException {
         LoginRequest request = gson.fromJson(context.body(), LoginRequest.class);
         if (request == null) {
             context.status(400);

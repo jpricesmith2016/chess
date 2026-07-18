@@ -23,16 +23,13 @@ class GameServiceTest {
     @BeforeEach
     public void makeServiceWithAuth() {
         MemoryAuthDAO authDAO = new MemoryAuthDAO();
-        try {
-            authDAO.createAuth(new AuthData("auth-token", "alice"));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        authDAO.createAuth(new AuthData("auth-token", "alice"));
+
         service = new GameService(new MemoryGameDAO(), authDAO);
     }
 
     @Test
-    void listGamesReturnsExistingGames() {
+    void listGamesReturnsExistingGames() throws DataAccessException {
         service.createGame("auth-token", new CreateRequest("Game"));
 
         ListGamesResult result = service.listGames("auth-token");
@@ -43,7 +40,7 @@ class GameServiceTest {
     }
 
     @Test
-    void listGamesReturnsEmptyNoGamesExist() {
+    void listGamesReturnsEmptyNoGamesExist() throws DataAccessException {
 
         ListGamesResult result = service.listGames("auth-token");
 
@@ -63,7 +60,7 @@ class GameServiceTest {
     }
 
     @Test
-    void createGameFailsBlankGameName() {
+    void createGameFailsBlankGameName() throws DataAccessException {
 
         CreateResult result = service.createGame("auth-token", new CreateRequest(""));
 
@@ -72,7 +69,7 @@ class GameServiceTest {
     }
 
     @Test
-    void joinGameSucceedsAvailableSpot() {
+    void joinGameSucceedsAvailableSpot() throws DataAccessException {
         CreateResult created = service.createGame("auth-token", new CreateRequest("Join"));
 
         GameJoinResult result = service.joinGame("auth-token", new GameJoinRequest("WHITE", created.gameID()));
@@ -82,7 +79,7 @@ class GameServiceTest {
     }
 
     @Test
-    void joinGameFailsAlreadyTaken() {
+    void joinGameFailsAlreadyTaken() throws DataAccessException{
         try {
             service.gameDAO.createGame(new GameData(1, "existing-user", null, "Taken", new ChessGame()));
         } catch (DataAccessException e) {
@@ -97,7 +94,7 @@ class GameServiceTest {
     }
 
     @Test
-    void clearAllGames() {
+    void clearAllGames() throws DataAccessException{
         service.createGame("auth-token", new CreateRequest("Clear me"));
 
         service.clear();

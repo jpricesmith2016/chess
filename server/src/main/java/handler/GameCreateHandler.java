@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.exceptions.DataAccessException;
 import requestresult.*;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
@@ -21,7 +22,7 @@ public class GameCreateHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) {
+    public void handle(@NotNull Context context) throws DataAccessException {
         String authToken = context.header("Authorization");
         AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
         if (authres.resultCode() != 200) {

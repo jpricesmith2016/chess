@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.exceptions.DataAccessException;
 import requestresult.LogoutRequest;
 import requestresult.LogoutResult;
 import com.google.gson.Gson;
@@ -19,7 +20,7 @@ public class UserLogoutHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) {
+    public void handle(@NotNull Context context) throws DataAccessException {
         LogoutRequest request = new LogoutRequest(context.header("Authorization"));
         LogoutResult result = serviceAuth.logout(request);
 

@@ -6,6 +6,11 @@ import model.GameData;
 import java.util.Collection;
 import java.util.List;
 
+import java.sql.*;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
+
 public class SQLGameDAO implements GameDAO{
     @Override
     public void createGame(GameData g) throws DataAccessException {

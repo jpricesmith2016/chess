@@ -2,6 +2,7 @@ package server;
 
 import chess.*;
 import dataaccess.*;
+import dataaccess.exceptions.DataAccessException;
 import handler.*;
 import io.javalin.Javalin;
 import service.AuthService;
@@ -10,9 +11,9 @@ import service.UserService;
 
 public class ServerMain {
 
-    final AuthDAO authDAO = new MemoryAuthDAO();
-    final UserDAO userDAO = new MemoryUserDAO();
-    final GameDAO gameDAO = new MemoryGameDAO();
+    private static AuthDAO authDAO;
+    private static UserDAO userDAO;
+    private static GameDAO gameDAO;
 
     final AuthService authService = new AuthService(authDAO, userDAO);
     final UserService userService = new UserService(userDAO);
@@ -28,6 +29,11 @@ public class ServerMain {
             if (args.length >= 1) {
                 requestedPort = Integer.parseInt(args[0]);
             }
+
+            authDAO = new SQLAuthDAO();
+            userDAO = new MemoryUserDAO();
+            gameDAO = new MemoryGameDAO();
+
             var server = new ServerMain();
             int port = server.run(requestedPort);
             System.out.printf("Server started on port %d%n", port);

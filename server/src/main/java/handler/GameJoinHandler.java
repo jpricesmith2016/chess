@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.exceptions.DataAccessException;
 import requestresult.AuthRequest;
 import requestresult.AuthResult;
 import requestresult.GameJoinRequest;
@@ -24,7 +25,7 @@ public class GameJoinHandler implements Handler {
     }
 
     @Override
-    public void handle(Context context) {
+    public void handle(Context context) throws DataAccessException {
         String authToken = context.header("Authorization");
         AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
         if (authres.resultCode() != 200) {

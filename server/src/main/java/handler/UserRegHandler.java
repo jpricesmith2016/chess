@@ -1,6 +1,7 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataaccess.exceptions.DataAccessException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +24,7 @@ public class UserRegHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) {
+    public void handle(@NotNull Context context) throws DataAccessException {
         RegisterRequest request = gson.fromJson(context.body(), RegisterRequest.class);
         if (request == null) {
             context.status(400);
