@@ -62,7 +62,6 @@ public class SQLAuthDAO implements AuthDAO{
     }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
-        var id = rs.getInt("id");
         var authToken = rs.getString("authToken");
         var json = rs.getString("authData");
         return new Gson().fromJson(json, AuthData.class);

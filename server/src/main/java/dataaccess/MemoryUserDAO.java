@@ -13,11 +13,6 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(String username) {
-        return userInfo.get(username);
-    }
-
-    @Override
     public boolean containsUser (String username) {
         return userInfo.containsKey(username);
     }

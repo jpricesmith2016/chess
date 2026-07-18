@@ -31,7 +31,7 @@ public class ServerMain {
             }
 
             authDAO = new SQLAuthDAO();
-            userDAO = new MemoryUserDAO();
+            userDAO = new SQLUserDAO();
             gameDAO = new MemoryGameDAO();
 
             var server = new ServerMain();

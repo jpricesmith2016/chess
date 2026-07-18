@@ -79,7 +79,7 @@ public class AuthService {
         if (regReq.username() == null || regReq.password() == null) {
             return new RegisterResult(400, new RegAuthReturn(regReq.username(), ""), "Error: bad request");
         }
-        if (userDAO.getUser(regReq.username()) != null) {
+        if (userDAO.containsUser(regReq.username())) {
             return new RegisterResult(403, new RegAuthReturn(regReq.username(), ""), "Error: already taken");
         }
         do {

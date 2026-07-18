@@ -17,6 +17,6 @@ class UserServiceTest {
 
         service.clear();
 
-        assertNull(userDAO.getUser("alice"));
+        assertFalse(userDAO.containsUser("alice"));
     }
 }
