@@ -20,17 +20,22 @@ public class UserLogoutHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws DataAccessException {
-        LogoutRequest request = new LogoutRequest(context.header("Authorization"));
-        LogoutResult result = serviceAuth.logout(request);
+    public void handle(@NotNull Context context) {
+        try {
+            LogoutRequest request = new LogoutRequest(context.header("Authorization"));
+            LogoutResult result = serviceAuth.logout(request);
 
-        context.status(result.resultCode());
+            context.status(result.resultCode());
 
-        context.contentType("application/json");
-        if (result.resultCode() != 200) {
-            context.result(gson.toJson(Map.of("message", result.message())));
-        } else {
-            context.result("");
+            context.contentType("application/json");
+            if (result.resultCode() != 200) {
+                context.result(gson.toJson(Map.of("message", result.message())));
+            } else {
+                context.result("");
+            }
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 }

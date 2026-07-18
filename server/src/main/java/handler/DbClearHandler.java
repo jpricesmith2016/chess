@@ -8,6 +8,8 @@ import service.AuthService;
 import service.GameService;
 import service.UserService;
 
+import java.util.Map;
+
 public class DbClearHandler implements Handler {
     private final GameService serviceGame;
     private final AuthService serviceAuth;
@@ -21,11 +23,16 @@ public class DbClearHandler implements Handler {
     }
 
     @Override
-    public void handle(Context context) throws DataAccessException {
+    public void handle(Context context) {
+        try {
         serviceGame.clear();
         serviceAuth.clear();
         serviceUser.clear();
 
         context.status(200);
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
     }
 }

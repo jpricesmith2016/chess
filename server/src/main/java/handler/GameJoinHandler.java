@@ -25,22 +25,27 @@ public class GameJoinHandler implements Handler {
     }
 
     @Override
-    public void handle(Context context) throws DataAccessException {
-        String authToken = context.header("Authorization");
-        AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
-        if (authres.resultCode() != 200) {
-            context.status(authres.resultCode());
-            context.json(gson.toJson(Map.of("message", authres.message())));
-            return;
-        }
+    public void handle(Context context) {
+        try {
+            String authToken = context.header("Authorization");
+            AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
+            if (authres.resultCode() != 200) {
+                context.status(authres.resultCode());
+                context.json(gson.toJson(Map.of("message", authres.message())));
+                return;
+            }
 
-        GameJoinRequest request = gson.fromJson(context.body(), GameJoinRequest.class);
+            GameJoinRequest request = gson.fromJson(context.body(), GameJoinRequest.class);
 
-        GameJoinResult result = service.joinGame(authToken, request);
-        context.status(result.resultCode());
+            GameJoinResult result = service.joinGame(authToken, request);
+            context.status(result.resultCode());
 
-        if (result.resultCode() != 200) {
-            context.json(gson.toJson(Map.of("message", result.message())));
+            if (result.resultCode() != 200) {
+                context.json(gson.toJson(Map.of("message", result.message())));
+            }
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 }

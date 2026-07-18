@@ -22,31 +22,36 @@ public class GameCreateHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws DataAccessException {
-        String authToken = context.header("Authorization");
-        AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
-        if (authres.resultCode() != 200) {
-            context.status(authres.resultCode());
-            context.contentType("application/json");
-            context.result(gson.toJson(Map.of("message", authres.message())));
-            return;
-        }
+    public void handle(@NotNull Context context) {
+        try {
+            String authToken = context.header("Authorization");
+            AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
+            if (authres.resultCode() != 200) {
+                context.status(authres.resultCode());
+                context.contentType("application/json");
+                context.result(gson.toJson(Map.of("message", authres.message())));
+                return;
+            }
 
-        CreateRequest request = gson.fromJson(context.body(), CreateRequest.class);
-        if (request == null) {
-            context.status(400);
-            context.contentType("application/json");
-            context.result(gson.toJson(Map.of("message", "Error: bad request")));
-            return;
-        }
-        CreateResult result = serviceGame.createGame(authToken, request);
+            CreateRequest request = gson.fromJson(context.body(), CreateRequest.class);
+            if (request == null) {
+                context.status(400);
+                context.contentType("application/json");
+                context.result(gson.toJson(Map.of("message", "Error: bad request")));
+                return;
+            }
+            CreateResult result = serviceGame.createGame(authToken, request);
 
-        context.status(result.resultCode());
-        context.contentType("application/json");
-        if (result.resultCode() != 200) {
-            context.result(gson.toJson(Map.of("message", result.message())));
-        } else {
-            context.result(gson.toJson(Map.of("gameID", result.gameID())));
+            context.status(result.resultCode());
+            context.contentType("application/json");
+            if (result.resultCode() != 200) {
+                context.result(gson.toJson(Map.of("message", result.message())));
+            } else {
+                context.result(gson.toJson(Map.of("gameID", result.gameID())));
+            }
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 }

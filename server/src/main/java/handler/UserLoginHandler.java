@@ -24,20 +24,25 @@ public class UserLoginHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws DataAccessException {
-        LoginRequest request = gson.fromJson(context.body(), LoginRequest.class);
-        if (request == null) {
-            context.status(400);
-            context.json(gson.toJson(Map.of("message", "Error: bad request")));
-            return;
-        }
-        LoginResult result = serviceAuth.login(request);
-        context.status(result.resultCode());
-        if (result.resultCode() != 200) {
-            context.json(gson.toJson(Map.of("message", result.message())));
-        } else {
-            context.json(gson.toJson(Map.of("username", request.username(),
-                    "authToken", result.authToken())));
+    public void handle(@NotNull Context context) {
+        try {
+            LoginRequest request = gson.fromJson(context.body(), LoginRequest.class);
+            if (request == null) {
+                context.status(400);
+                context.json(gson.toJson(Map.of("message", "Error: bad request")));
+                return;
+            }
+            LoginResult result = serviceAuth.login(request);
+            context.status(result.resultCode());
+            if (result.resultCode() != 200) {
+                context.json(gson.toJson(Map.of("message", result.message())));
+            } else {
+                context.json(gson.toJson(Map.of("username", request.username(),
+                        "authToken", result.authToken())));
+            }
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 }
