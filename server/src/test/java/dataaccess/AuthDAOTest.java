@@ -18,23 +18,23 @@ public class AuthDAOTest {
 
     @Test
     void createStoresData() throws DataAccessException {
-        var authData = new AuthData("token-1", "alice");
+        var authData = new AuthData("token", "alice");
         auth.createAuth(authData);
-        assertEquals(authData, auth.getAuth("token-1"));
+        assertEquals(authData, auth.getAuth("token"));
     }
 
     @Test
     void createRejectsDuplicateToken() throws DataAccessException {
-        var authData = new AuthData("token-1", "alice");
+        var authData = new AuthData("token", "alice");
         auth.createAuth(authData);
         assertThrows(DataAccessException.class, () -> auth.createAuth(authData));
     }
 
     @Test
     void getReturnsStoredData() throws DataAccessException {
-        var authData = new AuthData("token-1", "alice");
+        var authData = new AuthData("token", "alice");
         auth.createAuth(authData);
-        assertEquals(authData, auth.getAuth("token-1"));
+        assertEquals(authData, auth.getAuth("token"));
     }
 
     @Test
@@ -44,9 +44,9 @@ public class AuthDAOTest {
 
     @Test
     void deleteRemovesToken() throws DataAccessException {
-        auth.createAuth(new AuthData("token-1", "alice"));
-        auth.deleteAuth("token-1");
-        assertNull(auth.getAuth("token-1"));
+        auth.createAuth(new AuthData("token", "alice"));
+        auth.deleteAuth("token");
+        assertNull(auth.getAuth("token"));
     }
 
     @Test
@@ -57,15 +57,15 @@ public class AuthDAOTest {
 
     @Test
     void clearRemovesAllTokens() throws DataAccessException {
-        auth.createAuth(new AuthData("token-1", "alice"));
+        auth.createAuth(new AuthData("token", "alice"));
         auth.clearAuth();
-        assertFalse(auth.containsAuthToken("token-1"));
+        assertFalse(auth.containsAuthToken("token"));
     }
 
     @Test
     void containsFindsExistingToken() throws DataAccessException {
-        auth.createAuth(new AuthData("token-1", "alice"));
-        assertTrue(auth.containsAuthToken("token-1"));
+        auth.createAuth(new AuthData("token", "alice"));
+        assertTrue(auth.containsAuthToken("token"));
     }
 
     @Test
