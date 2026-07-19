@@ -62,7 +62,7 @@ public class SQLGameDAO implements GameDAO{
     @Override
     public Collection<GameData> getGameListUser(String username) throws DataAccessException {
         var statement = "SELECT id, userWhite, userBlack, gameName, gameState FROM game WHERE userBlack=? OR userWhite=?";
-        return gameListPuller(statement);
+        return gameListPuller(statement, username, username);
     }
 
     @Override
@@ -90,18 +90,17 @@ public class SQLGameDAO implements GameDAO{
     private Collection<GameData> gameListPuller (String statement,  Object... params) throws DataAccessException {
         var result = new ArrayList<GameData>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    for (int i = 0; i < params.length; i++) {
-                        Object param = params[i];
-                        switch (param) {
-                            case Integer p -> ps.setInt(i + 1, p);
-                            case String p -> ps.setString(i + 1, p);
-                            case null -> ps.setNull(i + 1, NULL);
-                            default -> {
-                            }
-                        }
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    switch (param) {
+                        case Integer p -> ps.setInt(i + 1, p);
+                        case String p -> ps.setString(i + 1, p);
+                        case null -> ps.setNull(i + 1, NULL);
+                        default -> throw new DataAccessException("Unsupported parameter type: " + param.getClass());
                     }
+                }
+                try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         result.add(new GameData(rs.getInt(1), rs.getString(2)
                                 , rs.getString(3), rs.getString(4)
