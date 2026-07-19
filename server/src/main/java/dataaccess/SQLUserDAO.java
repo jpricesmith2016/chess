@@ -1,19 +1,26 @@
 package dataaccess;
 
-import com.google.gson.Gson;
 import dataaccess.exceptions.DataAccessException;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
 public class SQLUserDAO implements UserDAO{
 
     public SQLUserDAO() throws Exception {
-        configureDatabase();
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS user (
+              `username` varchar(256) NOT NULL,
+              `passwordEnc` varchar(256) DEFAULT NULL,
+              `email` varchar(256) DEFAULT NULL,
+              PRIMARY KEY (`username`),
+              INDEX (`passwordEnc`)
+            );
+            """
+        };
+        DatabaseManager.configureDatabase(createStatements);
     }
 
     @Override
@@ -22,13 +29,13 @@ public class SQLUserDAO implements UserDAO{
         String username = u.username();
         String passwordEnc = BCrypt.hashpw(u.password(), BCrypt.gensalt());
         String email = u.email();
-        executeUpdate(statement, username, passwordEnc, email);
+        DatabaseManager.executeUpdate(statement, username, passwordEnc, email);
     }
 
     @Override
     public void clearUser() throws DataAccessException {
         var statement = "TRUNCATE user";
-        executeUpdate(statement);
+        DatabaseManager.executeUpdate(statement);
     }
 
     @Override
@@ -58,55 +65,4 @@ public class SQLUserDAO implements UserDAO{
         return null;
     }
 
-
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    switch (param) {
-                        case Integer p -> ps.setInt(i + 1, p);
-                        case String p -> ps.setString(i + 1, p);
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    rs.getInt(1);
-                }
-
-            }
-        } catch (Exception e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()), e);
-        }
-    }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS user (
-              `username` varchar(256) NOT NULL,
-              `passwordEnc` varchar(256) DEFAULT NULL,
-              `email` varchar(256) DEFAULT NULL,
-              PRIMARY KEY (`username`),
-              INDEX (`passwordEnc`)
-            );
-            """
-    };
-
-    private void configureDatabase() throws SQLException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new SQLException(String.format("Unable to configure database: %s", ex.getMessage()));
-        }
-    }
 }
