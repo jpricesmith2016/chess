@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class UserLogoutHandler implements Handler {
     final AuthService serviceAuth;
-    Gson gson = new Gson();
+    final Gson gson = new Gson();
 
     public UserLogoutHandler(AuthService serviceAuth) {
         this.serviceAuth = serviceAuth;

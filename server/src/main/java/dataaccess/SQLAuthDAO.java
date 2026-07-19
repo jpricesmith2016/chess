@@ -62,7 +62,6 @@ public class SQLAuthDAO implements AuthDAO{
     }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
-        var authToken = rs.getString("authToken");
         var json = rs.getString("authData");
         return new Gson().fromJson(json, AuthData.class);
     }
@@ -104,7 +103,7 @@ public class SQLAuthDAO implements AuthDAO{
             """
     };
 
-    private void configureDatabase() throws SQLException, DataAccessException {
+    private void configureDatabase() throws SQLException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
