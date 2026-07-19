@@ -1,6 +1,7 @@
 package server;
 
 import chess.*;
+import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.exceptions.DataAccessException;
 import handler.*;
@@ -8,6 +9,8 @@ import io.javalin.Javalin;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
+
+import java.util.Map;
 
 public class ServerMain {
 
@@ -45,12 +48,33 @@ public class ServerMain {
 
     public ServerMain() {
         javalinServer = Javalin.create(config -> config.staticFiles.add("web"));
+        registerExceptionHandlers();
         createHandlers();
     }
 
     public int run(int requestedPort) {
         javalinServer.start(requestedPort);
         return javalinServer.port();
+    }
+
+    private void registerExceptionHandlers() {
+        javalinServer.exception(DataAccessException.class, (e, ctx) -> {
+            ctx.status(500);
+            ctx.contentType("application/json");
+            ctx.result(new Gson().toJson(Map.of("message", "Error: " + sanitizeMessage(e.getMessage()))));
+        });
+        javalinServer.exception(Exception.class, (e, ctx) -> {
+            ctx.status(500);
+            ctx.contentType("application/json");
+            ctx.result(new Gson().toJson(Map.of("message", "Error: " + sanitizeMessage(e.getMessage()))));
+        });
+    }
+
+    private String sanitizeMessage(String message) {
+        if (message == null || message.isBlank()) {
+            return "internal server error";
+        }
+        return message;
     }
 
     private void createHandlers() {

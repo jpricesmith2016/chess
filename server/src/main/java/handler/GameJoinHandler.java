@@ -27,11 +27,12 @@ public class GameJoinHandler implements Handler {
     @Override
     public void handle(Context context) {
         try {
+            context.contentType("application/json");
             String authToken = context.header("Authorization");
             AuthResult authres = serviceAuth.auth(new AuthRequest(authToken));
             if (authres.resultCode() != 200) {
                 context.status(authres.resultCode());
-                context.json(gson.toJson(Map.of("message", authres.message())));
+                context.result(gson.toJson(Map.of("message", authres.message())));
                 return;
             }
 
@@ -41,11 +42,12 @@ public class GameJoinHandler implements Handler {
             context.status(result.resultCode());
 
             if (result.resultCode() != 200) {
-                context.json(gson.toJson(Map.of("message", result.message())));
+                context.result(gson.toJson(Map.of("message", result.message())));
             }
         } catch (DataAccessException e) {
             context.status(500);
-            context.json(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 }

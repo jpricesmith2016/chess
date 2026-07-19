@@ -26,10 +26,11 @@ public class UserRegHandler implements Handler {
     @Override
     public void handle(@NotNull Context context) {
         try {
+            context.contentType("application/json");
             RegisterRequest request = gson.fromJson(context.body(), RegisterRequest.class);
             if (request == null) {
                 context.status(400);
-                context.json(Map.of("message", "Error: bad request"));
+                context.result(gson.toJson(Map.of("message", "Error: bad request")));
                 return;
             }
             RegisterResult result = authService.register(request);
@@ -39,16 +40,16 @@ public class UserRegHandler implements Handler {
             String jsonResult = gson.toJson(Map.of("message", result.message()));
 
             if (result.resultCode() != 200) {
-                context.contentType("application/json");
-                context.json(jsonResult);
+                context.result(jsonResult);
             } else {
                 jsonResult = gson.toJson(Map.of("username", result.returnAuth().username(),
                         "authToken", result.returnAuth().authToken()));
-                context.json(jsonResult);
+                context.result(jsonResult);
             }
         } catch (DataAccessException e) {
             context.status(500);
-            context.json(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 }

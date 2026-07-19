@@ -51,7 +51,8 @@ public class GameCreateHandler implements Handler {
             }
         } catch (DataAccessException e) {
             context.status(500);
-            context.json(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 }
