@@ -44,11 +44,6 @@ public class Server {
             ctx.contentType("application/json");
             ctx.result(new Gson().toJson(Map.of("message", "Error: " + sanitizeMessage(e.getMessage()))));
         });
-        javalin.exception(Exception.class, (e, ctx) -> {
-            ctx.status(500);
-            ctx.contentType("application/json");
-            ctx.result(new Gson().toJson(Map.of("message", "Error: " + sanitizeMessage(e.getMessage()))));
-        });
     }
 
     private String sanitizeMessage(String message) {
