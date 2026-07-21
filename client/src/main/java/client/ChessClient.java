@@ -1,65 +1,45 @@
 package client;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.Locale;
-
 public class ChessClient {
 
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private boolean quit;
     private static String serverURL;
-    private static String authToken;
+    private static ClientHttp httpClient;
+    private enum State {
+        LOGGED_OUT,
+        LOGGED_IN
+    }
+    private State authState;
 
-    public ChessClient(String serverURL) throws Exception {
+    public ChessClient(String serverURL) {
         ChessClient.serverURL = serverURL;
+        httpClient = new ClientHttp(serverURL);
+        quit = false;
+        authState = State.LOGGED_OUT;
     }
 
-    private HttpRequest clientRequest(String url, String method, Boolean auth, String body) throws Exception {
-        if (auth) {
-            return HttpRequest.newBuilder()
-                    .uri(new URI(url))
-                    .timeout(java.time.Duration.ofMillis(5000))
-                    .method(method, clientBodyPublisher(body))
-                    .header("Authorization", authToken)
-                    .build();
-        } else {
-            return HttpRequest.newBuilder()
-                    .uri(new URI(url))
-                    .timeout(java.time.Duration.ofMillis(5000))
-                    .method(method, clientBodyPublisher(body))
-                    .build();
+    public boolean run() {
+
+        while (!quit) {
+
+            String req;
+
+            switch (authState) {
+                case LOGGED_OUT -> loggedOutCommands(req);
+                case LOGGED_IN -> loggedInCommands(req);
+            }
         }
+        return quit;
+
     }
 
-    private HttpRequest.BodyPublisher clientBodyPublisher(String body) throws IOException {
-        if (body != null) {
-            return HttpRequest.BodyPublishers.ofString(body);
-        } else {
-            return HttpRequest.BodyPublishers.noBody();
-        }
+    private void loggedOutCommands(String req) {
+
     }
 
-    private void get(String serverURL, String path, Boolean auth) throws Exception {
-        String urlString = String.format(Locale.getDefault(), "%s%s", serverURL, path);
-        HttpRequest request = clientRequest(urlString, "get", auth, null);
+    private void loggedInCommands(String req) {
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-            System.out.println(httpResponse.body());
-        } else {
-            System.out.println("Error: received status code " + httpResponse.statusCode());
-        }
     }
 
-    public static Boolean preAuthRun() {
-        return false;
-    }
 
-    public static Boolean postAuthRun() {
-        return false;
-    }
 }

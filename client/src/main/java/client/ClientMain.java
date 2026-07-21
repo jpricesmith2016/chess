@@ -18,21 +18,20 @@ public class ClientMain {
         System.out.println("♕ 240 Chess Client: " + piece);
 
         boolean quit = false;
+        
+        ChessClient client = null;
 
         try {
-            new ChessClient(serverUrl);
+            client = new ChessClient(serverUrl);
         } catch (Throwable e) {
             System.out.printf("Unable to start client: %s%n", e.getMessage());
         }
 
-        while (!quit) {
-            try {
-                quit = ChessClient.preAuthRun();
-                quit = ChessClient.postAuthRun();
-            } catch (Throwable e) {
-                quit = true;
-                System.out.printf("Client Crashed During runtime: %s%n", e.getMessage());
-            }
+        try {
+            quit = client.run();
+        } catch (Throwable e) {
+            quit = true;
+            System.out.printf("Client Crashed During runtime: %s%n", e.getMessage());
         }
     }
 }
