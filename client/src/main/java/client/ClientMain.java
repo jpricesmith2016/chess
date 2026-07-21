@@ -17,10 +17,22 @@ public class ClientMain {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Client: " + piece);
 
+        Boolean quit = false;
+
         try {
-            new ChessClient(serverUrl).run();
+            new ChessClient(serverUrl);
         } catch (Throwable e) {
-            System.out.printf("Unable to start server: %s%n", e.getMessage());
+            System.out.printf("Unable to start client: %s%n", e.getMessage());
+        }
+
+        while (!quit) {
+            try {
+                quit = ChessClient.preAuthRun();
+                quit = ChessClient.postAuthRun();
+            } catch (Throwable e) {
+                quit = true;
+                System.out.printf("Client Crashed During runtime: %s%n", e.getMessage());
+            }
         }
     }
 }
