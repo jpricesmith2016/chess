@@ -8,9 +8,8 @@ import java.sql.*;
 
 public class SQLUserDAO implements UserDAO{
 
-    public SQLUserDAO() throws Exception {
-        String[] createStatements = {
-                """
+    private final String[] createStatements = {
+            """
             CREATE TABLE IF NOT EXISTS user (
               `username` varchar(256) NOT NULL,
               `passwordEnc` varchar(256) DEFAULT NULL,
@@ -19,7 +18,9 @@ public class SQLUserDAO implements UserDAO{
               INDEX (`passwordEnc`)
             );
             """
-        };
+    };
+
+    public SQLUserDAO() throws Exception {
         DatabaseManager.configureDatabase(createStatements);
     }
 
@@ -36,6 +37,11 @@ public class SQLUserDAO implements UserDAO{
     public void clearUser() throws DataAccessException {
         var statement = "TRUNCATE user";
         DatabaseManager.executeUpdate(statement);
+        try {
+            DatabaseManager.configureDatabase(createStatements);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
     }
 
     @Override

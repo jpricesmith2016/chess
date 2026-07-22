@@ -5,6 +5,8 @@ import model.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthDAOTest {
@@ -56,7 +58,7 @@ public class AuthDAOTest {
     }
 
     @Test
-    void clearRemovesAllTokens() throws DataAccessException {
+    void clearRemovesAllTokens() throws DataAccessException, SQLException {
         auth.createAuth(new AuthData("token", "alice"));
         auth.clearAuth();
         assertFalse(auth.containsAuthToken("token"));

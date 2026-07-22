@@ -23,7 +23,6 @@ public class GameClient {
     private static ChessRepl chessRepl;
     private static ChessClient chessClient;
     private static ChessBoard newBoard;
-    private final String width = "%3s";
 
     public GameClient(ServerFacade httpClient, ChessRepl chessRepl) {
         GameClient.httpClient = httpClient;
@@ -61,11 +60,15 @@ public class GameClient {
         String squareColor = SET_BG_COLOR_DARK_GREY;
         newBoard = game.game().getBoard();
 
+        String width = "%3s";
+        String format = width + width + width + width + width + width + width + width + width + width;
+        String letterBorder;
         if (team.equalsIgnoreCase("White") || team.equalsIgnoreCase("Observer")) {
 
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
-                    + String.format(width + width + width + width + width + width + width + width + width + width
-                    , "", "a", "b", "c", "d", "e", "f", "g", "h", "") + RESET_BG_COLOR + "\n");
+            letterBorder = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
+                    + String.format(format, "", "a", "b", "c", "d", "e", "f", "g", "h", "") + RESET_BG_COLOR + "\n";
+
+            System.out.print(letterBorder);
 
             for (int row = 7; row >= 0; row--) {
                 System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + (row + 1) + " ");
@@ -88,18 +91,14 @@ public class GameClient {
                 System.out.println(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
             }
 
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
-                    + String.format(width + width + width + width + width + width + width + width + width + width
-                    , "", "a", "b", "c", "d", "e", "f", "g", "h", "") + RESET_BG_COLOR + "\n");
-
         } else {
 
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
-                    + String.format(width + width + width + width + width + width + width + width + width + width
-                    , "", "h", "g", "f", "e", "d", "c", "b", "a", "") + RESET_BG_COLOR + "\n");
+            letterBorder = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
+                    + String.format(format, "", "h", "g", "f", "e", "d", "c", "b", "a", "") + RESET_BG_COLOR + "\n";
+            System.out.print(letterBorder);
 
             for (int row = 0; row < 8; row++) {
-                System.out.printf(" " + width + " ", row + 1);
+                System.out.print(" " + row+1 + " ");
 
                 squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
 
@@ -119,10 +118,8 @@ public class GameClient {
                 System.out.println(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
             }
 
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
-                    + String.format(width + width + width + width + width + width + width + width + width + width
-                    , "", "h", "g", "f", "e", "d", "c", "b", "a", "") + RESET_BG_COLOR + "\n");
         }
+        System.out.print(letterBorder);
 
         board = newBoard;
     }
@@ -137,22 +134,22 @@ public class GameClient {
 
         switch (piece.getPieceType()) {
             case KING -> {
-                return (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_KING : BLACK_KING;
+                return output + ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_KING : BLACK_KING);
             }
             case QUEEN -> {
-                return (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_QUEEN : BLACK_QUEEN;
+                return output + ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_QUEEN : BLACK_QUEEN);
             }
             case BISHOP -> {
-                return (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_BISHOP : BLACK_BISHOP;
+                return output + ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_BISHOP : BLACK_BISHOP);
             }
             case KNIGHT -> {
-                return (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_KNIGHT : BLACK_KNIGHT;
+                return output + ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_KNIGHT : BLACK_KNIGHT);
             }
             case ROOK -> {
-                return (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_ROOK : BLACK_ROOK;
+                return output + ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_ROOK : BLACK_ROOK);
             }
             case PAWN -> {
-                return (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_PAWN : BLACK_PAWN;
+                return output + ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_PAWN : BLACK_PAWN);
             }
         }
         return "";

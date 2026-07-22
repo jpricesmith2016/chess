@@ -15,9 +15,8 @@ import static java.sql.Types.NULL;
 
 public class SQLGameDAO implements GameDAO{
 
-    public SQLGameDAO() throws Exception {
-        String[] createStatements = {
-                """
+    private final String[] createStatements = {
+            """
             CREATE TABLE IF NOT EXISTS game (
               `id` INT NOT NULL AUTO_INCREMENT,
               `userWhite` VARCHAR(256) DEFAULT NULL,
@@ -27,7 +26,9 @@ public class SQLGameDAO implements GameDAO{
               PRIMARY KEY (`id`)
             );
             """
-        };
+    };
+
+    public SQLGameDAO() throws Exception {
         DatabaseManager.configureDatabase(createStatements);
     }
 
@@ -94,6 +95,11 @@ public class SQLGameDAO implements GameDAO{
     public void clearGame() throws DataAccessException {
         var statement = "TRUNCATE game";
         DatabaseManager.executeUpdate(statement);
+        try {
+            DatabaseManager.configureDatabase(createStatements);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
     }
 
     private Collection<GameData> gameListPuller (String statement,  Object... params) throws DataAccessException {

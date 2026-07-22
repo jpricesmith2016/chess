@@ -8,16 +8,17 @@ import java.sql.*;
 
 public class SQLAuthDAO implements AuthDAO{
 
-    public SQLAuthDAO() throws Exception {
-        String[] createStatements = {
-                """
+    private final String[] createStatements = {
+            """
             CREATE TABLE IF NOT EXISTS auth (
               `authToken` varchar(256) NOT NULL,
               `authData` longtext NOT NULL,
               PRIMARY KEY (`authToken`)
             );
             """
-        };
+    };
+
+    public SQLAuthDAO() throws Exception {
         DatabaseManager.configureDatabase(createStatements);
     }
 
@@ -60,6 +61,11 @@ public class SQLAuthDAO implements AuthDAO{
     public void clearAuth() throws DataAccessException {
         var statement = "TRUNCATE auth";
         DatabaseManager.executeUpdate(statement);
+        try {
+            DatabaseManager.configureDatabase(createStatements);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
     }
 
     @Override

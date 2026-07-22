@@ -3,6 +3,7 @@ package client;
 import java.util.Arrays;
 import java.util.Collection;
 
+import handler.DbClearHandler;
 import model.GameData;
 import requestresult.*;
 import static ui.EscapeSequences.*;
@@ -41,6 +42,7 @@ public class ChessClient {
             Join an Existing Game: "j", "join" <ID> <white|black>
             Observe and Existing Game: "o", "observe" <ID>
             logout of the Client: "logout"
+            clear Games: "clear"
             Print this message: "h", "help"
             """;
 
@@ -58,6 +60,7 @@ public class ChessClient {
                 case "l", "list" -> list();
                 case "j", "join" -> join(params);
                 case "o", "observe" -> observe(params);
+                case "clear" -> clearDb();
                 case "logout" -> logout();
                 default -> helpString;
             };
@@ -149,5 +152,11 @@ public class ChessClient {
             throw new Exception (result.message());
         }
         return username + " has been logged out of their session";
+    }
+
+    private String clearDb() throws Exception {
+        httpClient.clear();
+        chessRepl.setAuthState(ChessRepl.State.LOGGED_OUT);
+        return "DB has been cleared by user " + username;
     }
 }
