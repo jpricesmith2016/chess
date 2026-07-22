@@ -6,9 +6,7 @@ import ui.EscapeSequences;
 
 public class ChessRepl {
 
-    private boolean quit;
     private static String serverURL;
-    private static ServerFacade httpClient;
     private static LoginClient loginClient;
     private static ChessClient chessClient;
     private static GameClient gameClient;
@@ -18,22 +16,20 @@ public class ChessRepl {
         GAME
     }
     public static State authState;
-    private Scanner scanner;
 
     public ChessRepl(String serverURL) {
         ChessRepl.serverURL = serverURL;
-        httpClient = new ServerFacade(serverURL);
+        ServerFacade httpClient = new ServerFacade(serverURL);
         loginClient = new LoginClient(httpClient);
         chessClient = new ChessClient(httpClient);
         gameClient = new GameClient(httpClient);
-        quit = false;
         authState = State.LOGGED_OUT;
     }
 
     public void run() {
 
-        String req = null;
-        scanner = new Scanner(System.in);
+        String req;
+        Scanner scanner = new Scanner(System.in);
 
         var result = "";
 
@@ -41,6 +37,8 @@ public class ChessRepl {
 
             switch (authState) {
                 case LOGGED_OUT -> loginClient.printPrompt();
+                case LOGGED_IN -> chessClient.printPrompt();
+                case GAME -> gameClient.printPrompt();
             }
 
             req = scanner.nextLine();
