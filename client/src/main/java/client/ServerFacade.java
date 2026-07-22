@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import com.mysql.cj.log.Log;
 import model.GameData;
 import requestresult.*;
 
@@ -10,6 +11,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 
 import model.*;
 
@@ -18,7 +20,7 @@ public class ServerFacade {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static String serverURL;
     private static String authToken;
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
     public ServerFacade(String serverURL) {
         ServerFacade.serverURL = serverURL;
@@ -62,15 +64,31 @@ public class ServerFacade {
     }
 
     public RegisterResult register(RegisterRequest request) throws Exception {
+        HttpResponse<String> response = clientHttpBuilder("/user", false, "POST", gson.toJson(request));
 
+        if (response.statusCode() != 200) {
+            return new RegisterResult(response.statusCode(), new RegAuthReturn(request.username(), "")
+                    , gson.fromJson(response.body(), String.class));
+        }
+        return new RegisterResult(response.statusCode(), new RegAuthReturn(request.username()
+                , gson.fromJson(response.body(), String.class)), null);
     }
 
     public LoginResult login(LoginRequest request) throws Exception {
+        HttpResponse<String> response = clientHttpBuilder("/session", false, "POST", gson.toJson(request));
 
+        if (response.statusCode() != 200) {
+            return new LoginResult(response.statusCode(), gson.fromJson(response.body(), String.class), null);
+        }
+        authToken = gson.fromJson(response.body(), String.class);
+        return new LoginResult(response.statusCode(), request.username(), authToken);
     }
 
     public LogoutResult logout(LogoutRequest request) throws Exception {
+        authToken = request.authToken();
+        HttpResponse<String> response = clientHttpBuilder("/session", true, "DELETE", null);
 
+        return new LogoutResult(response.statusCode(), gson.fromJson(response.body(), String.class));
     }
 
     public CreateResult createGame(CreateRequest request) throws Exception {
