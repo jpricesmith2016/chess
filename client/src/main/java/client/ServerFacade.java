@@ -1,7 +1,6 @@
 package client;
 
 import com.google.gson.Gson;
-import com.mysql.cj.log.Log;
 import model.GameData;
 import requestresult.*;
 
@@ -11,9 +10,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Map;
-
-import model.*;
 
 public class ServerFacade {
 

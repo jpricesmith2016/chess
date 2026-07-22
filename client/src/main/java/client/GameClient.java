@@ -17,7 +17,6 @@ import static ui.EscapeSequences.SET_BG_COLOR_GREEN;
 public class GameClient {
 
     private static ServerFacade httpClient;
-    public static String username;
     public static String team;
     private static GameData game;
     private static ChessBoard board;
@@ -26,11 +25,10 @@ public class GameClient {
         GameClient.httpClient = httpClient;
     }
 
-    public void setGameInfo(GameData game, String user) {
+    public void setGameInfo(GameData game) {
         GameClient.game = game;
-        GameClient.username = user;
-        GameClient.team = Objects.equals(game.whiteUsername(), user) ? "White"
-                : Objects.equals(game.blackUsername(), user) ? "Black" : "Observer";
+        GameClient.team = Objects.equals(GameClient.game.whiteUsername(), ChessClient.username) ? "White"
+                : Objects.equals(GameClient.game.blackUsername(), ChessClient.username) ? "Black" : "Observer";
     }
 
     private final String helpString =
@@ -54,7 +52,7 @@ public class GameClient {
         String squareColor = SET_BG_COLOR_GREEN;
         ChessBoard newBoard = game.game().getBoard();
 
-        if (team == "White" || team == "Observer") {
+        if (Objects.equals(team, "White") || Objects.equals(team, "Observer")) {
 
             System.out.println(SET_BG_COLOR_LIGHT_GREY + " abcdefgh ");
 

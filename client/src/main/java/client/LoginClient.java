@@ -1,5 +1,7 @@
 package client;
 
+import requestresult.*;
+
 import java.util.Arrays;
 
 import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
@@ -44,7 +46,14 @@ public class LoginClient {
 
     private String login(String[] params) throws Exception {
         if (params.length == 2) {
-            ChessRepl.authState = ChessRepl.State.LOGGED_IN;
+            LoginResult result = httpClient.login(new LoginRequest(params[0], params[1]));
+            if (result.resultCode() == 200) {
+                ChessRepl.authState = ChessRepl.State.LOGGED_IN;
+                ChessClient.username = params[0];
+                ChessClient.authToken = result.authToken();
+            } else {
+                throw new Exception (result.message());
+            }
         } else {
             throw new Exception ("Incorrect parameters: Expected <USERNAME> <PASSWORD>");
         }
@@ -53,7 +62,14 @@ public class LoginClient {
 
     private String register(String[] params) throws Exception {
         if (params.length >= 2) {
-            ChessRepl.authState = ChessRepl.State.LOGGED_IN;
+            RegisterResult result = httpClient.register(new RegisterRequest(params[0], params[1], params[2]));
+            if (result.resultCode() == 200) {
+                ChessRepl.authState = ChessRepl.State.LOGGED_IN;
+                ChessClient.username = params[0];
+                ChessClient.authToken = result.returnAuth().authToken();
+            } else {
+                throw new Exception (result.message());
+            }
         } else {
             throw new Exception ("Incorrect parameters: Expected <USERNAME> <PASSWORD> <EMAIL>");
         }
