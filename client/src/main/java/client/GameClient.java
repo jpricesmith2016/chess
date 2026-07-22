@@ -8,6 +8,7 @@ import model.GameData;
 import ui.EscapeSequences;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.SET_BG_COLOR_DARK_GREEN;
@@ -17,7 +18,7 @@ public class GameClient {
 
     private static ServerFacade httpClient;
     public static String username;
-    public static boolean whiteTeam;
+    public static String team;
     private static GameData game;
     private static ChessBoard board;
 
@@ -25,10 +26,11 @@ public class GameClient {
         GameClient.httpClient = httpClient;
     }
 
-    public void setGameInfo(GameData game, String user, Boolean whiteTeam) {
+    public void setGameInfo(GameData game, String user) {
         GameClient.game = game;
         GameClient.username = user;
-        GameClient.whiteTeam = whiteTeam;
+        GameClient.team = Objects.equals(game.whiteUsername(), user) ? "White"
+                : Objects.equals(game.blackUsername(), user) ? "Black" : "Observer";
     }
 
     private final String helpString =
@@ -40,7 +42,8 @@ public class GameClient {
 
     void printPrompt() {
         System.out.print(EscapeSequences.ERASE_SCREEN);
-        System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "\n[Chess_Game] >>> Game_ID: " + game.gameID());
+        System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "\n[Chess_Game] >>> Game_ID: " + game.gameID() + " Team: " + team
+                + " Turn: " + game.game().getTeamTurn().toString());
 
         printBoard();
 
@@ -51,7 +54,7 @@ public class GameClient {
         String squareColor = SET_BG_COLOR_GREEN;
         ChessBoard newBoard = game.game().getBoard();
 
-        if (whiteTeam) {
+        if (team == "White" || team == "Observer") {
 
             System.out.println(SET_BG_COLOR_LIGHT_GREY + " abcdefgh ");
 
