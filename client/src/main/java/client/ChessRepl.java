@@ -15,15 +15,20 @@ public class ChessRepl {
         LOGGED_IN,
         GAME
     }
-    public static State authState;
+    private static State authState;
 
     public ChessRepl(String serverURL) {
         ChessRepl.serverURL = serverURL;
         ServerFacade httpClient = new ServerFacade(serverURL);
-        loginClient = new LoginClient(httpClient);
-        chessClient = new ChessClient(httpClient);
-        gameClient = new GameClient(httpClient);
+        gameClient = new GameClient(httpClient, this);
+        chessClient = new ChessClient(httpClient, this, gameClient);
+        loginClient = new LoginClient(httpClient, this, chessClient);
+        gameClient.setChessClient(chessClient);
         authState = State.LOGGED_OUT;
+    }
+
+    public void setAuthState(State state) {
+        authState = state;
     }
 
     public void run() {

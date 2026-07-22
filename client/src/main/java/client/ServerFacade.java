@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import requestresult.*;
 
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -63,20 +64,23 @@ public class ServerFacade {
         HttpResponse<String> response = clientHttpBuilder("/user", false, "POST", gson.toJson(request));
 
         if (response.statusCode() != 200) {
+            MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
             return new RegisterResult(response.statusCode(), new RegAuthReturn(request.username(), "")
-                    , gson.fromJson(response.body(), String.class));
+                    , responseStr.message());
         }
-        return new RegisterResult(response.statusCode(), new RegAuthReturn(request.username()
-                , gson.fromJson(response.body(), String.class)), null);
+        RegAuthReturn auth = gson.fromJson(response.body(), RegAuthReturn.class);
+        return new RegisterResult(response.statusCode(), auth, null);
     }
 
     public LoginResult login(LoginRequest request) throws Exception {
         HttpResponse<String> response = clientHttpBuilder("/session", false, "POST", gson.toJson(request));
 
         if (response.statusCode() != 200) {
-            return new LoginResult(response.statusCode(), gson.fromJson(response.body(), String.class), null);
+            MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
+            return new LoginResult(response.statusCode(), responseStr.message(), null);
         }
-        authToken = gson.fromJson(response.body(), String.class);
+        RegAuthReturn regAuth = gson.fromJson(response.body(), (Type) RegAuthReturn.class);
+        authToken = regAuth.authToken();
         return new LoginResult(response.statusCode(), request.username(), authToken);
     }
 
@@ -84,33 +88,41 @@ public class ServerFacade {
         authToken = request.authToken();
         HttpResponse<String> response = clientHttpBuilder("/session", true, "DELETE", null);
 
-        return new LogoutResult(response.statusCode(), gson.fromJson(response.body(), String.class));
+        MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
+        return new LogoutResult(response.statusCode(), responseStr.message());
     }
 
     public CreateResult createGame(CreateRequest request) throws Exception {
         HttpResponse<String> response = clientHttpBuilder("/game", true, "POST", gson.toJson(request));
 
         if (response.statusCode() != 200) {
-            return new CreateResult(response.statusCode(),0, gson.fromJson(response.body(), String.class));
+            MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
+            return new CreateResult(response.statusCode(),0, responseStr.message());
         }
-        return new CreateResult(response.statusCode(), gson.fromJson(response.body(), Integer.class), "");
+        IdResponse id = gson.fromJson(response.body(), IdResponse.class);
+        return new CreateResult(response.statusCode(), id.gameID(), "");
     }
 
     public GameJoinResult joinGame(GameJoinRequest request) throws Exception {
         HttpResponse<String> response = clientHttpBuilder("/game", true, "PUT", gson.toJson(request));
 
-        return new GameJoinResult(response.statusCode(), gson.fromJson(response.body(), String.class));
+        if (response.statusCode() != 200) {
+            MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
+            return new GameJoinResult(response.statusCode(), responseStr.message());
+        }
+        return new GameJoinResult(response.statusCode(), "");
     }
 
     public ListGamesResult listGames() throws Exception {
         HttpResponse<String> response = clientHttpBuilder("/game", true, "GET", null);
 
         if (response.statusCode() != 200) {
-            return new ListGamesResult(response.statusCode(),gson.fromJson(response.body(), String.class), null);
+            MessageResponse messageResponse = gson.fromJson(response.body(), MessageResponse.class);
+            return new ListGamesResult(response.statusCode(), messageResponse.message(), null);
         }
-        GameData[] games = gson.fromJson(response.body(), GameData[].class);
+        ListGamesResponse games = gson.fromJson(response.body(), (Type) ListGamesResponse.class);
 
-        return new ListGamesResult(response.statusCode(),"", Arrays.asList(games));
+        return new ListGamesResult(response.statusCode(),"", games.games());
     }
 
     public void clear() throws Exception {

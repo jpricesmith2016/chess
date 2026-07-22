@@ -4,14 +4,19 @@ import requestresult.*;
 
 import java.util.Arrays;
 
+import static ui.EscapeSequences.ERASE_SCREEN;
 import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
 
 public class LoginClient {
 
     private static ServerFacade httpClient;
+    private static ChessRepl chessRepl;
+    private static ChessClient chessClient;
 
-    public LoginClient(ServerFacade httpClient) {
+    public LoginClient(ServerFacade httpClient, ChessRepl repl, ChessClient client) {
         LoginClient.httpClient = httpClient;
+        chessRepl = repl;
+        chessClient = client;
     }
 
     private final String helpString =
@@ -24,12 +29,12 @@ public class LoginClient {
             """;
 
     void printPrompt() {
-        System.out.print(SET_TEXT_COLOR_LIGHT_GREY + "\n[LOGGED_IN] >>> ");
+        System.out.print(SET_TEXT_COLOR_LIGHT_GREY + "\n[LOGGED_OUT] >>> ");
     }
 
     String eval(String input) {
         try {
-            var tokens = input.toLowerCase().split("");
+            var tokens = input.trim().split("\\s+");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
@@ -48,31 +53,32 @@ public class LoginClient {
         if (params.length == 2) {
             LoginResult result = httpClient.login(new LoginRequest(params[0], params[1]));
             if (result.resultCode() == 200) {
-                ChessRepl.authState = ChessRepl.State.LOGGED_IN;
-                ChessClient.username = params[0];
-                ChessClient.authToken = result.authToken();
+                chessRepl.setAuthState(ChessRepl.State.LOGGED_IN);
+                chessClient.setUsername(params[0]);
+                chessClient.setAuthToken(result.authToken());
+                return "logged in as " + params[0];
             } else {
                 throw new Exception (result.message());
             }
         } else {
             throw new Exception ("Incorrect parameters: Expected <USERNAME> <PASSWORD>");
         }
-        return null;
     }
 
     private String register(String[] params) throws Exception {
         if (params.length >= 2) {
             RegisterResult result = httpClient.register(new RegisterRequest(params[0], params[1], params[2]));
             if (result.resultCode() == 200) {
-                ChessRepl.authState = ChessRepl.State.LOGGED_IN;
+                chessRepl.setAuthState(ChessRepl.State.LOGGED_IN);
                 ChessClient.username = params[0];
                 ChessClient.authToken = result.returnAuth().authToken();
+                System.out.print(ERASE_SCREEN);
+                return "logged in as " + params[0];
             } else {
                 throw new Exception (result.message());
             }
         } else {
             throw new Exception ("Incorrect parameters: Expected <USERNAME> <PASSWORD> <EMAIL>");
         }
-        return null;
     }
 }

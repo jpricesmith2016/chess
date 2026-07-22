@@ -12,7 +12,7 @@ import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.SET_BG_COLOR_DARK_GREEN;
-import static ui.EscapeSequences.SET_BG_COLOR_GREEN;
+import static ui.EscapeSequences.SET_BG_COLOR_DARK_GREY;
 
 public class GameClient {
 
@@ -20,21 +20,30 @@ public class GameClient {
     public static String team;
     private static GameData game;
     private static ChessBoard board;
+    private static ChessRepl chessRepl;
+    private static ChessClient chessClient;
+    private static ChessBoard newBoard;
+    private final String width = "%3s";
 
-    public GameClient(ServerFacade httpClient) {
+    public GameClient(ServerFacade httpClient, ChessRepl chessRepl) {
         GameClient.httpClient = httpClient;
+        GameClient.chessRepl = chessRepl;
     }
 
-    public void setGameInfo(GameData game) {
+    void setChessClient (ChessClient client) {
+        chessClient = client;
+    }
+
+    public void setGameInfo(GameData game, String team) {
         GameClient.game = game;
-        GameClient.team = Objects.equals(GameClient.game.whiteUsername(), ChessClient.username) ? "White"
-                : Objects.equals(GameClient.game.blackUsername(), ChessClient.username) ? "Black" : "Observer";
+        GameClient.team = team;
+        GameClient.board = game.game().getBoard();
     }
 
     private final String helpString =
             """
             Options:
-            Exit the program: "q", "quit"
+            Exit the game: "e", "exit"
             Print this message: "h", "help"
             """;
 
@@ -49,53 +58,82 @@ public class GameClient {
     }
 
     void printBoard() {
-        String squareColor = SET_BG_COLOR_GREEN;
-        ChessBoard newBoard = game.game().getBoard();
+        String squareColor = SET_BG_COLOR_DARK_GREY;
+        newBoard = game.game().getBoard();
 
-        if (Objects.equals(team, "White") || Objects.equals(team, "Observer")) {
+        if (team.equalsIgnoreCase("White") || team.equalsIgnoreCase("Observer")) {
 
-            System.out.println(SET_BG_COLOR_LIGHT_GREY + " abcdefgh ");
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
+                    + String.format(width + width + width + width + width + width + width + width + width + width
+                    , "", "a", "b", "c", "d", "e", "f", "g", "h", "") + RESET_BG_COLOR + "\n");
 
             for (int row = 7; row >= 0; row--) {
-                System.out.print((row + 1) + " ");
+                System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + (row + 1) + " ");
+
+                squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
 
                 for (int col = 0; col < 8; col++) {
-                    squareColor = (squareColor.equals(SET_BG_COLOR_GREEN)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_GREEN;
-                    ChessPosition pos = new ChessPosition(row, col);
-                    System.out.print((newBoard.getPiece(pos) != board.getPiece(pos) ? SET_BG_COLOR_MAGENTA : squareColor)
+                    squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
+                    ChessPosition pos = new ChessPosition(row + 1, col + 1);
+
+                    boolean changed = !Objects.equals(
+                            newBoard.getPiece(pos),
+                            board.getPiece(pos)
+                    );
+
+                    System.out.print((changed ? SET_BG_COLOR_MAGENTA : squareColor)
                             + getSquare(pos));
                 }
 
-                System.out.println(SET_BG_COLOR_LIGHT_GREY + (row + 1));
+                System.out.println(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
             }
 
-            System.out.println(SET_BG_COLOR_LIGHT_GREY + " abcdefgh " + RESET_BG_COLOR);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
+                    + String.format(width + width + width + width + width + width + width + width + width + width
+                    , "", "a", "b", "c", "d", "e", "f", "g", "h", "") + RESET_BG_COLOR + "\n");
 
         } else {
 
-            System.out.println(SET_BG_COLOR_LIGHT_GREY + " hgfedcba ");
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
+                    + String.format(width + width + width + width + width + width + width + width + width + width
+                    , "", "h", "g", "f", "e", "d", "c", "b", "a", "") + RESET_BG_COLOR + "\n");
 
             for (int row = 0; row < 8; row++) {
-                System.out.print((row + 1) + " ");
+                System.out.printf(" " + width + " ", row + 1);
+
+                squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
 
                 for (int col = 7; col >= 0; col--) {
-                    squareColor = (squareColor.equals(SET_BG_COLOR_GREEN)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_GREEN;
-                    ChessPosition pos = new ChessPosition(row, col);
-                    System.out.print((newBoard.getPiece(pos) != board.getPiece(pos) ? SET_BG_COLOR_MAGENTA : squareColor)
+                    squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
+                    ChessPosition pos = new ChessPosition(row + 1, col + 1);
+
+                    boolean changed = !Objects.equals(
+                            newBoard.getPiece(pos),
+                            board.getPiece(pos)
+                    );
+
+                    System.out.print((changed ? SET_BG_COLOR_MAGENTA : squareColor)
                             + getSquare(pos));
                 }
 
-                System.out.println(SET_BG_COLOR_LIGHT_GREY + (row + 1));
+                System.out.println(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
             }
 
-            System.out.println(SET_BG_COLOR_LIGHT_GREY + " hgfedcba " + RESET_BG_COLOR);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
+                    + String.format(width + width + width + width + width + width + width + width + width + width
+                    , "", "h", "g", "f", "e", "d", "c", "b", "a", "") + RESET_BG_COLOR + "\n");
         }
 
         board = newBoard;
     }
 
     private String getSquare(ChessPosition pos) {
-        ChessPiece piece = board.getPiece(pos);
+        ChessPiece piece = newBoard.getPiece(pos);
+        if (piece == null) {
+            return "   ";
+        }
+
+        String output = SET_TEXT_COLOR_WHITE;
 
         switch (piece.getPieceType()) {
             case KING -> {
@@ -117,21 +155,26 @@ public class GameClient {
                 return (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? WHITE_PAWN : BLACK_PAWN;
             }
         }
-        return " ";
+        return "";
     }
 
     String eval(String input) {
         try {
-            var tokens = input.toLowerCase().split("");
+            var tokens = input.trim().split("\\s+");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "q", "quit" -> "quit";
+                case "e", "exit" -> exit();
                 default -> helpString;
             };
 
         } catch (Exception e) {
             return e.getMessage();
         }
+    }
+
+    private String exit() {
+        chessRepl.setAuthState(ChessRepl.State.LOGGED_IN);
+        return "User " + chessClient.getUser() + " has exited the game";
     }
 }
