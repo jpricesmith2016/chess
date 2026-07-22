@@ -23,11 +23,7 @@ public class LoginClient {
         System.out.print("\n[LOGGED_IN] >>> ");
     }
 
-    private String read() {
-        return null;
-    }
-
-    private String loggedOutEval(String input) {
+    private String eval(String input) {
         try {
             var tokens = input.toLowerCase().split("");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -44,14 +40,6 @@ public class LoginClient {
         }
     }
 
-    private String loggedInEval(String input) {
-
-    }
-
-    private void printEval(String output) {
-
-    }
-
     private String login(String[] params) throws Exception {
         if (params.length == 2) {
             ChessRepl.authState = ChessRepl.State.LOGGED_IN;
@@ -62,8 +50,11 @@ public class LoginClient {
     }
 
     private String register(String[] params) throws Exception {
-
+        if (params.length >= 2) {
+            ChessRepl.authState = ChessRepl.State.LOGGED_IN;
+        } else {
+            throw new Exception ("Incorrect parameters: Expected <USERNAME> <PASSWORD> <EMAIL>");
+        }
+        return null;
     }
-
-
 }

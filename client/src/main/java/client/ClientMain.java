@@ -19,16 +19,16 @@ public class ClientMain {
 
         boolean quit = false;
         
-        ChessClient1 client = null;
+        ChessRepl repl = null;
 
         try {
-            client = new ChessClient1(serverUrl);
+            repl = new ChessRepl(serverUrl);
         } catch (Throwable e) {
             System.out.printf("Unable to start client: %s%n", e.getMessage());
         }
 
         try {
-            quit = client.run();
+            quit = repl.run();
         } catch (Throwable e) {
             quit = true;
             System.out.printf("Client Crashed During runtime: %s%n", e.getMessage());
