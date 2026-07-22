@@ -73,16 +73,23 @@ public class ServerFacade {
 
     }
 
-    public AuthResult auth(AuthRequest request) throws Exception {
+    public CreateResult createGame(CreateRequest request) throws Exception {
+        HttpResponse<String> response = clientHttpBuilder("/game", true, "POST", gson.toJson(request));
 
+        if (response.statusCode() != 200) {
+            return new CreateResult(response.statusCode(),0, gson.fromJson(response.body(), String.class));
+        }
+        return new CreateResult(response.statusCode(), gson.fromJson(response.body(), Integer.class), "");
     }
 
     public GameJoinResult joinGame(GameJoinRequest request) throws Exception {
+        HttpResponse<String> response = clientHttpBuilder("/game", true, "PUT", gson.toJson(request));
 
+        return new GameJoinResult(response.statusCode(), gson.fromJson(response.body(), String.class));
     }
 
     public ListGamesResult listGames() throws Exception {
-        HttpResponse<String> response = clientHttpBuilder("/game", false, "GET", authToken);
+        HttpResponse<String> response = clientHttpBuilder("/game", true, "GET", null);
 
         if (response.statusCode() != 200) {
             return new ListGamesResult(response.statusCode(),gson.fromJson(response.body(), String.class), null);
