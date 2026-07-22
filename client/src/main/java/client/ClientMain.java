@@ -19,10 +19,10 @@ public class ClientMain {
 
         boolean quit = false;
         
-        ChessClient client = null;
+        ChessClient1 client = null;
 
         try {
-            client = new ChessClient(serverUrl);
+            client = new ChessClient1(serverUrl);
         } catch (Throwable e) {
             System.out.printf("Unable to start client: %s%n", e.getMessage());
         }
