@@ -2,24 +2,27 @@ package client;
 
 import java.util.Scanner;
 
+import ui.EscapeSequences;
+
 public class ChessRepl {
 
     private boolean quit;
     private static String serverURL;
-    private static ClientHttp httpClient;
+    private static ServerFacade httpClient;
     private static LoginClient loginClient;
     private static ChessClient chessClient;
     private static GameClient gameClient;
     public enum State {
         LOGGED_OUT,
-        LOGGED_IN
+        LOGGED_IN,
+        GAME
     }
     public static State authState;
     private Scanner scanner;
 
     public ChessRepl(String serverURL) {
         ChessRepl.serverURL = serverURL;
-        httpClient = new ClientHttp(serverURL);
+        httpClient = new ServerFacade(serverURL);
         loginClient = new LoginClient(httpClient);
         chessClient = new ChessClient(httpClient);
         gameClient = new GameClient(httpClient);
@@ -27,29 +30,35 @@ public class ChessRepl {
         authState = State.LOGGED_OUT;
     }
 
-    public boolean run() {
+    public void run() {
 
         String req = null;
-        String evalOut = null;
         scanner = new Scanner(System.in);
 
-        while (!quit) {
+        var result = "";
+
+        while (!result.equals("quit")) {
 
             switch (authState) {
                 case LOGGED_OUT -> loginClient.printPrompt();
             }
 
-            req = read();
+            req = scanner.nextLine();
 
-            switch (authState) {
-                case LOGGED_OUT -> evalOut = loggedOutEval(req);
-                case LOGGED_IN -> evalOut = loggedInEval(req);
+            try {
+                switch (authState) {
+                    case LOGGED_OUT -> result = loginClient.eval(req);
+                    case LOGGED_IN -> result = chessClient.eval(req);
+                    case GAME -> result = gameClient.eval(req);
+                }
+                System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
+            } catch (Throwable e) {
+                var msg = e.toString();
+                System.out.print(EscapeSequences.SET_TEXT_COLOR_RED + msg);
             }
 
-            printEval(evalOut);
+            System.out.println();
         }
-        return quit;
-
     }
 
 }

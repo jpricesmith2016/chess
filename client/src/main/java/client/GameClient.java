@@ -2,11 +2,13 @@ package client;
 
 import java.util.Arrays;
 
+import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
+
 public class GameClient {
 
-    private static ClientHttp httpClient;
+    private static ServerFacade httpClient;
 
-    public GameClient(ClientHttp httpClient) {
+    public GameClient(ServerFacade httpClient) {
         GameClient.httpClient = httpClient;
     }
 
@@ -18,10 +20,10 @@ public class GameClient {
             """;
 
     void printPrompt() {
-        System.out.print("\n[LOGGED_IN] >>> ");
+        System.out.print(SET_TEXT_COLOR_LIGHT_GREY + "\n[LOGGED_IN] >>> ");
     }
 
-    private String eval(String input) {
+    String eval(String input) {
         try {
             var tokens = input.toLowerCase().split("");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";

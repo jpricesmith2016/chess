@@ -1,19 +1,27 @@
 package client;
 
+import com.google.gson.Gson;
+import model.GameData;
+import requestresult.*;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
 import java.util.Locale;
 
-public class ClientHttp {
+import model.*;
+
+public class ServerFacade {
 
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static String serverURL;
     private static String authToken;
+    private static Gson gson = new Gson();
 
-    public ClientHttp(String serverURL) {
-        ClientHttp.serverURL = serverURL;
+    public ServerFacade(String serverURL) {
+        ServerFacade.serverURL = serverURL;
         authToken = null;
     }
 
@@ -43,21 +51,48 @@ public class ClientHttp {
     }
 
     public static void setAuthToken(String authToken) {
-        ClientHttp.authToken = authToken;
+        ServerFacade.authToken = authToken;
     }
 
     public HttpResponse<String> clientHttpBuilder(String path, Boolean auth, String method, String body) throws Exception {
         String urlString = String.format(Locale.getDefault(), "%s%s", serverURL, path);
         HttpRequest request = clientRequest(urlString, method, auth, body);
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    }
 
-        if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-            System.out.println(httpResponse.body());
-        } else {
-            System.out.println("Error: received status code " + httpResponse.statusCode());
+    public RegisterResult register(RegisterRequest request) throws Exception {
+
+    }
+
+    public LoginResult login(LoginRequest request) throws Exception {
+
+    }
+
+    public LogoutResult logout(LogoutRequest request) throws Exception {
+
+    }
+
+    public AuthResult auth(AuthRequest request) throws Exception {
+
+    }
+
+    public GameJoinResult joinGame(GameJoinRequest request) throws Exception {
+
+    }
+
+    public ListGamesResult listGames() throws Exception {
+        HttpResponse<String> response = clientHttpBuilder("/game", false, "GET", authToken);
+
+        if (response.statusCode() != 200) {
+            return new ListGamesResult(response.statusCode(),gson.fromJson(response.body(), String.class), null);
         }
+        GameData[] games = gson.fromJson(response.body(), GameData[].class);
 
-        return httpResponse;
+        return new ListGamesResult(response.statusCode(),"", Arrays.asList(games));
+    }
+
+    public void clear() throws Exception {
+        clientHttpBuilder("/db", false, "DELETE", null);
     }
 }

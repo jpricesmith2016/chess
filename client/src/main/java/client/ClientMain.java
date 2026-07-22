@@ -4,8 +4,7 @@ import chess.*;
 
 public class ClientMain {
 
-    private static String username;
-    private static String authToken;
+    private static ChessRepl repl;
 
     public static void main(String[] args) {
         String serverUrl = "http://localhost:8080";
@@ -17,10 +16,6 @@ public class ClientMain {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Client: " + piece);
 
-        boolean quit = false;
-        
-        ChessRepl repl = null;
-
         try {
             repl = new ChessRepl(serverUrl);
         } catch (Throwable e) {
@@ -28,9 +23,8 @@ public class ClientMain {
         }
 
         try {
-            quit = repl.run();
+            repl.run();
         } catch (Throwable e) {
-            quit = true;
             System.out.printf("Client Crashed During runtime: %s%n", e.getMessage());
         }
     }
