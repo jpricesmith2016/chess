@@ -106,7 +106,16 @@ public class ChessClient {
 
     private String join(String[] params) throws Exception {
         if (params.length == 2) {
-            GameJoinResult result = httpClient.joinGame(new GameJoinRequest(params[1], Integer.parseInt(params[0])));
+
+            int gameID;
+
+            try {
+                gameID = Integer.parseInt(params[0]);
+            } catch (Exception e){
+                throw new Exception ("Invalid ID format: Expected <int> parameter", e);
+            }
+
+            GameJoinResult result = httpClient.joinGame(new GameJoinRequest(params[1], gameID));
 
             if (result.resultCode() != 200) {
                 throw new Exception (result.message());
@@ -115,12 +124,11 @@ public class ChessClient {
             for (GameData game : httpClient.listGames().games()){
                 if(game.gameID() == Integer.parseInt(params[0])) {
                     gameClient.setGameInfo(game, params[1]);
-                    break;
+                    chessRepl.setAuthState(ChessRepl.State.GAME);
+                    return "GameID: " + gameID + " Joined as the " + params[1] + " player";
                 }
             }
-            chessRepl.setAuthState(ChessRepl.State.GAME);
-
-            return "GameID: " + Integer.parseInt(params[0]) + " Joined as the " + params[1] + " player";
+            return "Invalid GameID: GameID " + gameID + " does not exist";
 
         } else {
             throw new Exception ("Incorrect parameters: Expected <ID> <White|Black>");
@@ -130,15 +138,22 @@ public class ChessClient {
     private String observe(String[] params) throws Exception {
         if (params.length == 1) {
 
+            int gameID;
+
+            try {
+                gameID = Integer.parseInt(params[0]);
+            } catch (Exception e){
+                throw new Exception ("Invalid ID format: Expected <int> parameter", e);
+            }
+
             for (GameData game : httpClient.listGames().games()){
-                if(game.gameID() == Integer.parseInt(params[0])) {
+                if(game.gameID() == gameID) {
                     gameClient.setGameInfo(game, "Observer");
-                    break;
+                    chessRepl.setAuthState(ChessRepl.State.GAME);
+                    return username + " Joined GameID: " + gameID + " as an observer";
                 }
             }
-            chessRepl.setAuthState(ChessRepl.State.GAME);
-
-            return "GameID: " + Integer.parseInt(params[0]) + " Joined as an observer";
+            return "Invalid GameID: GameID " + gameID + " does not exist";
 
         } else {
             throw new Exception ("Incorrect parameters: Expected <ID>");

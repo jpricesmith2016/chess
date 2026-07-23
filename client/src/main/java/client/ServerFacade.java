@@ -24,6 +24,11 @@ public class ServerFacade {
         authToken = null;
     }
 
+    public ServerFacade(int port) {
+        ServerFacade.serverURL = "http://localhost:" + port;
+        authToken = null;
+    }
+
     private HttpRequest clientRequest(String url, String method, Boolean auth, String body) throws Exception {
         if (auth) {
             return HttpRequest.newBuilder()
@@ -69,6 +74,7 @@ public class ServerFacade {
                     , responseStr.message());
         }
         RegAuthReturn auth = gson.fromJson(response.body(), RegAuthReturn.class);
+        authToken = auth.authToken();
         return new RegisterResult(response.statusCode(), auth, null);
     }
 
@@ -89,6 +95,7 @@ public class ServerFacade {
         HttpResponse<String> response = clientHttpBuilder("/session", true, "DELETE", null);
 
         MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
+        authToken = null;
         return new LogoutResult(response.statusCode(), responseStr.message());
     }
 

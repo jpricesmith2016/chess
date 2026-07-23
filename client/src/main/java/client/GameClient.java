@@ -60,13 +60,12 @@ public class GameClient {
         String squareColor = SET_BG_COLOR_DARK_GREY;
         newBoard = game.game().getBoard();
 
-        String width = "%3s";
-        String format = width + width + width + width + width + width + width + width + width + width;
         String letterBorder;
         if (team.equalsIgnoreCase("White") || team.equalsIgnoreCase("Observer")) {
 
             letterBorder = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
-                    + String.format(format, "", "a", "b", "c", "d", "e", "f", "g", "h", "") + RESET_BG_COLOR + "\n";
+                    + "   " + "\u2003a " + "\u2003b " + "\u2003c " + "\u2003d "
+                    + "\u2003e " + "\u2003f " + "\u2003g " + "\u2003h " + "   " + RESET_BG_COLOR + "\n";
 
             System.out.print(letterBorder);
 
@@ -94,7 +93,8 @@ public class GameClient {
         } else {
 
             letterBorder = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
-                    + String.format(format, "", "h", "g", "f", "e", "d", "c", "b", "a", "") + RESET_BG_COLOR + "\n";
+                    + "   " + "\u2003h " + "\u2003g " + "\u2003f " + "\u2003e "
+                    + "\u2003d " + "\u2003c " + "\u2003b " + "\u2003a " + "   " + RESET_BG_COLOR + "\n";
             System.out.print(letterBorder);
 
             for (int row = 0; row < 8; row++) {
@@ -125,12 +125,11 @@ public class GameClient {
     }
 
     private String getSquare(ChessPosition pos) {
+        String output = SET_TEXT_COLOR_WHITE;
         ChessPiece piece = newBoard.getPiece(pos);
         if (piece == null) {
-            return "   ";
+            return output + "\u2003  ";
         }
-
-        String output = SET_TEXT_COLOR_WHITE;
 
         switch (piece.getPieceType()) {
             case KING -> {
