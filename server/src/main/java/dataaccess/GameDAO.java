@@ -1,6 +1,5 @@
 package dataaccess;
 
-import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.DataAccessException;
 import model.GameData;
 

@@ -11,8 +11,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static ui.EscapeSequences.*;
-import static ui.EscapeSequences.SET_BG_COLOR_DARK_GREEN;
-import static ui.EscapeSequences.SET_BG_COLOR_DARK_GREY;
 
 public class GameClient {
 

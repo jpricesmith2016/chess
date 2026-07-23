@@ -6,7 +6,6 @@ import ui.EscapeSequences;
 
 public class ChessRepl {
 
-    private static String serverURL;
     private static LoginClient loginClient;
     private static ChessClient chessClient;
     private static GameClient gameClient;
@@ -18,7 +17,6 @@ public class ChessRepl {
     private static State authState;
 
     public ChessRepl(String serverURL) {
-        ChessRepl.serverURL = serverURL;
         ServerFacade httpClient = new ServerFacade(serverURL);
         gameClient = new GameClient(httpClient, this);
         chessClient = new ChessClient(httpClient, this, gameClient);
