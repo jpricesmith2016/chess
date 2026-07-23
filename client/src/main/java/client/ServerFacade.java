@@ -52,7 +52,7 @@ public class ServerFacade {
         }
     }
 
-    public HttpResponse<String> clientHttpBuilder(String path, Boolean auth, String method, String body) throws Exception {
+    private HttpResponse<String> clientHttpBuilder(String path, Boolean auth, String method, String body) throws Exception {
         String urlString = String.format(Locale.getDefault(), "%s%s", serverURL, path);
         HttpRequest request = clientRequest(urlString, method, auth, body);
 
@@ -90,7 +90,7 @@ public class ServerFacade {
 
         MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
         authToken = null;
-        return new LogoutResult(response.statusCode(), responseStr.message());
+        return new LogoutResult(response.statusCode(), responseStr == null ? "" : responseStr.message());
     }
 
     public CreateResult createGame(CreateRequest request) throws Exception {
