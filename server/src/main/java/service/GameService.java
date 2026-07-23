@@ -47,8 +47,8 @@ public class GameService {
             return new GameJoinResult(401, "Error: unauthorized");
         }
         AuthData auth = authDAO.getAuth(authToken);
-        if ((whiteBool && game.whiteUsername() != null) ||
-                (blackBool && game.blackUsername() != null)) {
+        if ((whiteBool && game.whiteUsername() != null && !game.whiteUsername().equals(auth.username())) ||
+                (blackBool && game.blackUsername() != null && !game.blackUsername().equals(auth.username()))) {
             return new GameJoinResult(403, "Error: already taken");
         }
         GameData gameNew = new GameData(game.gameID(), whiteBool ? auth.username() : game.whiteUsername(),

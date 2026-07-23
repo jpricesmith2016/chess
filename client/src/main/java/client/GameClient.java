@@ -98,7 +98,7 @@ public class GameClient {
             System.out.print(letterBorder);
 
             for (int row = 0; row < 8; row++) {
-                System.out.print(" " + row+1 + " ");
+                System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + (row + 1) + " ");
 
                 squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
 
