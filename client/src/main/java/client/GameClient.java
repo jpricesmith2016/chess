@@ -21,6 +21,7 @@ public class GameClient {
     private static ChessRepl chessRepl;
     private static ChessClient chessClient;
     private static ChessBoard newBoard;
+    private static String squareColor;
 
     public GameClient(ServerFacade httpClient, ChessRepl chessRepl) {
         GameClient.httpClient = httpClient;
@@ -55,7 +56,7 @@ public class GameClient {
     }
 
     void printBoard() {
-        String squareColor = SET_BG_COLOR_DARK_GREY;
+        squareColor = SET_BG_COLOR_DARK_GREY;
         newBoard = game.game().getBoard();
 
         String letterBorder;
@@ -73,16 +74,7 @@ public class GameClient {
                 squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
 
                 for (int col = 0; col < 8; col++) {
-                    squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
-                    ChessPosition pos = new ChessPosition(row + 1, col + 1);
-
-                    boolean changed = !Objects.equals(
-                            newBoard.getPiece(pos),
-                            board.getPiece(pos)
-                    );
-
-                    System.out.print((changed ? SET_BG_COLOR_MAGENTA : squareColor)
-                            + getSquare(pos));
+                    printSquare(row,col);
                 }
 
                 System.out.println(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
@@ -101,16 +93,7 @@ public class GameClient {
                 squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
 
                 for (int col = 7; col >= 0; col--) {
-                    squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
-                    ChessPosition pos = new ChessPosition(row + 1, col + 1);
-
-                    boolean changed = !Objects.equals(
-                            newBoard.getPiece(pos),
-                            board.getPiece(pos)
-                    );
-
-                    System.out.print((changed ? SET_BG_COLOR_MAGENTA : squareColor)
-                            + getSquare(pos));
+                    printSquare(row,col);
                 }
 
                 System.out.println(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
@@ -120,6 +103,18 @@ public class GameClient {
         System.out.print(letterBorder);
 
         board = newBoard;
+    }
+
+    private void printSquare(int row, int col) {
+        squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
+        ChessPosition pos = new ChessPosition(row + 1, col + 1);
+
+        boolean changed = !Objects.equals(
+                newBoard.getPiece(pos),
+                board.getPiece(pos)
+        );
+
+        System.out.print((changed ? SET_BG_COLOR_MAGENTA : squareColor) + getSquare(pos));
     }
 
     private String getSquare(ChessPosition pos) {

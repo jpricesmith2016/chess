@@ -12,10 +12,10 @@ import java.util.Locale;
 
 public class ServerFacade {
 
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static HttpClient httpClient = HttpClient.newHttpClient();
     private static String serverURL;
     private static String authToken;
-    private static final Gson gson = new Gson();
+    private static Gson gson = new Gson();
 
     public ServerFacade(String serverURL) {
         ServerFacade.serverURL = serverURL;
