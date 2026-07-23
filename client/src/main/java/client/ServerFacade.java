@@ -1,7 +1,6 @@
 package client;
 
 import com.google.gson.Gson;
-import model.GameData;
 import requestresult.*;
 
 import java.lang.reflect.Type;
@@ -9,7 +8,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
 import java.util.Locale;
 
 public class ServerFacade {
@@ -52,10 +50,6 @@ public class ServerFacade {
         } else {
             return HttpRequest.BodyPublishers.noBody();
         }
-    }
-
-    public static void setAuthToken(String authToken) {
-        ServerFacade.authToken = authToken;
     }
 
     public HttpResponse<String> clientHttpBuilder(String path, Boolean auth, String method, String body) throws Exception {

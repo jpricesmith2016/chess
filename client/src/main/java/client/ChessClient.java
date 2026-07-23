@@ -3,7 +3,6 @@ package client;
 import java.util.Arrays;
 import java.util.Collection;
 
-import handler.DbClearHandler;
 import model.GameData;
 import requestresult.*;
 import static ui.EscapeSequences.*;
