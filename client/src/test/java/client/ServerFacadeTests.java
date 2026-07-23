@@ -104,7 +104,7 @@ public class ServerFacadeTests {
     @Test
     public void joinBadGameAsWhiteFail() throws Exception {
         facade.register(new RegisterRequest("joe", "pass", "example@gmail.com"));
-        CreateResult createResult = facade.createGame(new CreateRequest("Game1"));
+        facade.createGame(new CreateRequest("Game1"));
         GameJoinResult result = facade.joinGame(new GameJoinRequest("White", 3));
         Assertions.assertNotEquals(200, result.resultCode());
     }
@@ -133,6 +133,15 @@ public class ServerFacadeTests {
         ListGamesResult result = facade.listGames();
         assertEquals(200, result.resultCode());
         assertTrue(result.games().isEmpty());
+    }
+
+    @Test
+    public void clearTest() throws Exception {
+        RegisterResult resultReg = facade.register(new RegisterRequest("joe", "pass", "example@gmail.com"));
+        facade.logout(new LogoutRequest(resultReg.returnAuth().authToken()));
+        facade.clear();
+        LoginResult loginResult = facade.login(new LoginRequest("joe", "pass"));
+        assertNotEquals(200, loginResult.resultCode());
     }
 
 }
