@@ -168,6 +168,7 @@ public class ChessClient {
         if (result.resultCode() != 200) {
             throw new Exception (result.message());
         }
+        chessRepl.setAuthState(ChessRepl.State.LOGGED_OUT);
         return username + " has been logged out of their session";
     }
 

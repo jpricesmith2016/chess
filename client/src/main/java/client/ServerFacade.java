@@ -4,63 +4,25 @@ import com.google.gson.Gson;
 import requestresult.*;
 
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Locale;
 
 public class ServerFacade {
-
-    private static HttpClient httpClient = HttpClient.newHttpClient();
     private static String serverURL;
-    private static String authToken;
     private static Gson gson = new Gson();
+    private static HttpCommunicator clientHttp;
 
     public ServerFacade(String serverURL) {
         ServerFacade.serverURL = serverURL;
-        authToken = null;
+        clientHttp = new HttpCommunicator(serverURL, null);
     }
 
     public ServerFacade(int port) {
         ServerFacade.serverURL = "http://localhost:" + port;
-        authToken = null;
-    }
-
-    private HttpRequest clientRequest(String url, String method, Boolean auth, String body) throws Exception {
-        if (auth) {
-            return HttpRequest.newBuilder()
-                    .uri(new URI(url))
-                    .timeout(java.time.Duration.ofMillis(5000))
-                    .method(method, clientBodyPublisher(body))
-                    .header("Authorization", authToken)
-                    .build();
-        } else {
-            return HttpRequest.newBuilder()
-                    .uri(new URI(url))
-                    .timeout(java.time.Duration.ofMillis(5000))
-                    .method(method, clientBodyPublisher(body))
-                    .build();
-        }
-    }
-
-    private HttpRequest.BodyPublisher clientBodyPublisher(String body) {
-        if (body != null) {
-            return HttpRequest.BodyPublishers.ofString(body);
-        } else {
-            return HttpRequest.BodyPublishers.noBody();
-        }
-    }
-
-    private HttpResponse<String> clientHttpBuilder(String path, Boolean auth, String method, String body) throws Exception {
-        String urlString = String.format(Locale.getDefault(), "%s%s", serverURL, path);
-        HttpRequest request = clientRequest(urlString, method, auth, body);
-
-        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        clientHttp = new HttpCommunicator(serverURL, null);
     }
 
     public RegisterResult register(RegisterRequest request) throws Exception {
-        HttpResponse<String> response = clientHttpBuilder("/user", false, "POST", gson.toJson(request));
+        HttpResponse<String> response = clientHttp.clientHttpBuilder("/user", false, "POST", gson.toJson(request));
 
         if (response.statusCode() != 200) {
             MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
@@ -68,33 +30,33 @@ public class ServerFacade {
                     , responseStr.message());
         }
         RegAuthReturn auth = gson.fromJson(response.body(), RegAuthReturn.class);
-        authToken = auth.authToken();
+        clientHttp.setAuthToken(auth.authToken());
         return new RegisterResult(response.statusCode(), auth, null);
     }
 
     public LoginResult login(LoginRequest request) throws Exception {
-        HttpResponse<String> response = clientHttpBuilder("/session", false, "POST", gson.toJson(request));
+        HttpResponse<String> response = clientHttp.clientHttpBuilder("/session", false, "POST", gson.toJson(request));
 
         if (response.statusCode() != 200) {
             MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
             return new LoginResult(response.statusCode(), responseStr.message(), null);
         }
         RegAuthReturn regAuth = gson.fromJson(response.body(), (Type) RegAuthReturn.class);
-        authToken = regAuth.authToken();
-        return new LoginResult(response.statusCode(), request.username(), authToken);
+        clientHttp.setAuthToken(regAuth.authToken());
+        return new LoginResult(response.statusCode(), request.username(), clientHttp.getAuthToken());
     }
 
     public LogoutResult logout(LogoutRequest request) throws Exception {
-        authToken = request.authToken();
-        HttpResponse<String> response = clientHttpBuilder("/session", true, "DELETE", null);
+        clientHttp.setAuthToken(request.authToken());
+        HttpResponse<String> response = clientHttp.clientHttpBuilder("/session", true, "DELETE", null);
 
         MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
-        authToken = null;
+        clientHttp.setAuthToken(null);
         return new LogoutResult(response.statusCode(), responseStr == null ? "" : responseStr.message());
     }
 
     public CreateResult createGame(CreateRequest request) throws Exception {
-        HttpResponse<String> response = clientHttpBuilder("/game", true, "POST", gson.toJson(request));
+        HttpResponse<String> response = clientHttp.clientHttpBuilder("/game", true, "POST", gson.toJson(request));
 
         if (response.statusCode() != 200) {
             MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
@@ -105,7 +67,7 @@ public class ServerFacade {
     }
 
     public GameJoinResult joinGame(GameJoinRequest request) throws Exception {
-        HttpResponse<String> response = clientHttpBuilder("/game", true, "PUT", gson.toJson(request));
+        HttpResponse<String> response = clientHttp.clientHttpBuilder("/game", true, "PUT", gson.toJson(request));
 
         if (response.statusCode() != 200) {
             MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
@@ -115,7 +77,7 @@ public class ServerFacade {
     }
 
     public ListGamesResult listGames() throws Exception {
-        HttpResponse<String> response = clientHttpBuilder("/game", true, "GET", null);
+        HttpResponse<String> response = clientHttp.clientHttpBuilder("/game", true, "GET", null);
 
         if (response.statusCode() != 200) {
             MessageResponse messageResponse = gson.fromJson(response.body(), MessageResponse.class);
@@ -127,6 +89,6 @@ public class ServerFacade {
     }
 
     public void clear() throws Exception {
-        clientHttpBuilder("/db", false, "DELETE", null);
+        clientHttp.clientHttpBuilder("/db", false, "DELETE", null);
     }
 }

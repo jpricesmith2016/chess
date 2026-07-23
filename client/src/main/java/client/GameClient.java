@@ -70,47 +70,47 @@ public class GameClient {
     String printBoard(Collection<ChessMove> possibleMoves) {
         System.out.print(EscapeSequences.ERASE_SCREEN);
 
-        squareColor = SET_BG_COLOR_DARK_GREY;
+        squareColor = SET_BG_COLOR_SLATE;
         newBoard = game.game().getBoard();
 
         String letterBorder;
         if (team.equalsIgnoreCase("White") || team.equalsIgnoreCase("Observer")) {
 
-            letterBorder = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
+            letterBorder = SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE
                     + "   " + "\u2003a " + "\u2003b " + "\u2003c " + "\u2003d "
                     + "\u2003e " + "\u2003f " + "\u2003g " + "\u2003h " + "   " + RESET_BG_COLOR + "\n";
 
             System.out.print(letterBorder);
 
             for (int row = 7; row >= 0; row--) {
-                System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + (row + 1) + " ");
+                System.out.print(SET_BG_COLOR_DARK_GREY + " " + (row + 1) + " ");
 
-                squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
+                squareColor = (squareColor.equals(SET_BG_COLOR_SLATE)) ? SET_BG_COLOR_LIGHT_SLATE : SET_BG_COLOR_SLATE;
 
                 for (int col = 0; col < 8; col++) {
                     printSquare(row + 1,col + 1,possibleMoves);
                 }
 
-                System.out.println(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
+                System.out.println(SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
             }
 
         } else {
 
-            letterBorder = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE
+            letterBorder = SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE
                     + "   " + "\u2003h " + "\u2003g " + "\u2003f " + "\u2003e "
                     + "\u2003d " + "\u2003c " + "\u2003b " + "\u2003a " + "   " + RESET_BG_COLOR + "\n";
             System.out.print(letterBorder);
 
             for (int row = 0; row < 8; row++) {
-                System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + (row + 1) + " ");
+                System.out.print(SET_BG_COLOR_DARK_GREY + " " + (row + 1) + " ");
 
-                squareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
+                squareColor = (squareColor.equals(SET_BG_COLOR_SLATE)) ? SET_BG_COLOR_LIGHT_SLATE : SET_BG_COLOR_SLATE;
 
                 for (int col = 7; col >= 0; col--) {
                     printSquare(row + 1,col + 1,possibleMoves);
                 }
 
-                System.out.println(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
+                System.out.println(SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + " " + (row + 1) + " " + RESET_BG_COLOR);
             }
 
         }
@@ -129,7 +129,7 @@ public class GameClient {
     }
 
     private void printSquare(int row, int col, Collection<ChessMove> possibleMoves) {
-        String saveSquareColor = (squareColor.equals(SET_BG_COLOR_DARK_GREY)) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_DARK_GREY;
+        String saveSquareColor = (squareColor.equals(SET_BG_COLOR_SLATE)) ? SET_BG_COLOR_LIGHT_SLATE : SET_BG_COLOR_SLATE;
         textColor = SET_TEXT_COLOR_WHITE;
 
         if (possibleMoves.isEmpty()) {
@@ -137,11 +137,9 @@ public class GameClient {
         } else {
             for (ChessMove move : possibleMoves) {
                 if (move.getStartPosition().getRow() == row && move.getStartPosition().getColumn() == col) {
-                    textColor = SET_TEXT_COLOR_BLACK;
-                    squareColor = SET_BG_COLOR_YELLOW;
+                    squareColor = SET_BG_COLOR_DARK_BLUE;
                     break;
                 } else if (move.getEndPosition().getRow() == row && move.getEndPosition().getColumn() == col){
-                    textColor = SET_TEXT_COLOR_BLACK;
                     squareColor = SET_BG_COLOR_BLUE;
                     break;
                 }
@@ -162,11 +160,11 @@ public class GameClient {
     }
 
     private String getSquare(ChessPosition pos) {
-        String output = textColor;
         ChessPiece piece = newBoard.getPiece(pos);
         if (piece == null) {
-            return output + "\u2003  ";
+            return "\u2003  ";
         }
+        String output = (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? SET_TEXT_COLOR_WHITE : SET_TEXT_COLOR_BLACK;
 
         switch (piece.getPieceType()) {
             case KING -> {
