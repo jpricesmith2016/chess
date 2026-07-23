@@ -1,5 +1,6 @@
 package client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -124,7 +125,8 @@ public class ChessClient {
                 if(game.gameID() == Integer.parseInt(params[0])) {
                     gameClient.setGameInfo(game, params[1]);
                     chessRepl.setAuthState(ChessRepl.State.GAME);
-                    return "GameID: " + gameID + " Joined as the " + params[1] + " player";
+                    return "GameID: " + gameID + " Joined as the " + params[1] + " player"
+                            + gameClient.printBoard(new ArrayList<>());
                 }
             }
             return "Invalid GameID: GameID " + gameID + " does not exist";
@@ -149,7 +151,8 @@ public class ChessClient {
                 if(game.gameID() == gameID) {
                     gameClient.setGameInfo(game, "Observer");
                     chessRepl.setAuthState(ChessRepl.State.GAME);
-                    return username + " Joined GameID: " + gameID + " as an observer";
+                    return username + " Joined GameID: " + gameID + " as an observer"
+                            + gameClient.printBoard(new ArrayList<>());
                 }
             }
             return "Invalid GameID: GameID " + gameID + " does not exist";
