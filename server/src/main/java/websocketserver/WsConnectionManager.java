@@ -1,5 +1,6 @@
-package handler;
+package websocketserver;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,7 +39,15 @@ public class WsConnectionManager {
         return new HashSet<>();
     }
 
-    void broadcastMessage(Session excludedSession, ServerMessageType messageType, String message) {
-
+    void broadcastMessage(Session excludedSession, ServerMessageType messageType, String message, int gameID) throws IOException {
+        HashSet<Session> broadcastSessions = (HashSet<Session>) sessionMap.get(gameID);
+        if (excludedSession != null) {
+            broadcastSessions.remove(excludedSession);
+        }
+        for (Session c : (Session[]) broadcastSessions.toArray()) {
+            if (c.isOpen()) {
+                c.getRemote().sendString(message);
+            }
+        }
     }
 }

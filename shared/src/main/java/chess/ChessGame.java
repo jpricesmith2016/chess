@@ -15,6 +15,7 @@ public class ChessGame implements Cloneable {
 
     private TeamColor teamTurn;
     private ChessBoard gameBoard = new ChessBoard();
+    private String gameEnd = "";
     private boolean whiteKingMoved;
     private boolean blackKingMoved;
     private boolean[] whiteRookMoved = new boolean[2];
@@ -25,6 +26,14 @@ public class ChessGame implements Cloneable {
         teamTurn = TeamColor.WHITE;
         gameBoard.resetBoard();
         resetState();
+    }
+
+    public String getGameEnd() {
+        return gameEnd;
+    }
+
+    public void setGameEnd(String end) {
+        gameEnd = end;
     }
 
     /**
@@ -74,7 +83,7 @@ public class ChessGame implements Cloneable {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         // Pulls currently believed valid moves and checks to ensure there are values
         Collection<ChessMove> moves = ChessPiece.pieceMoves(gameBoard, startPosition, this);
-        if (moves == null) {
+        if (moves == null || gameEnd.isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -115,6 +124,11 @@ public class ChessGame implements Cloneable {
         // Checks current team turn and throws exception if it is out of order
         if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("It is not your turn");
+        }
+
+        // If the game has hit an end condition, the move will not be checked
+        if (gameEnd.isEmpty()) {
+            throw new InvalidMoveException("The game has finished, you cannot move");
         }
 
         Collection<ChessMove> currentPossibilities = validMoves(startPos);
@@ -324,7 +338,10 @@ public class ChessGame implements Cloneable {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         if (isInCheck(teamColor)) {
-            return noMoves(teamColor);
+            if (noMoves(teamColor)) {
+                gameEnd = teamColor == TeamColor.WHITE ? "Black" : "White" + " has won due to checkmate.";
+                return true;
+            }
         }
         return false;
     }
@@ -355,7 +372,10 @@ public class ChessGame implements Cloneable {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) {
-            return noMoves(teamColor);
+            if (noMoves(teamColor)) {
+                gameEnd = "Neither White nor Black have won because of a stalemate";
+                return true;
+            }
         }
         return false;
     }
