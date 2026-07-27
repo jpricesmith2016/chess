@@ -3,16 +3,13 @@ package handler;
 import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.exceptions.DataAccessException;
-import io.javalin.websocket.WsCloseContext;
-import io.javalin.websocket.WsCloseHandler;
-import io.javalin.websocket.WsConnectContext;
-import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.*;
+import websocket.commands.*;
+import websocket.messages.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
-import websocket.commands.*;
 
 public class wsGameHandler implements WsMessageHandler {
 
@@ -46,7 +43,6 @@ public class wsGameHandler implements WsMessageHandler {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            sendMessage(session, gameId, new ErrorMessage("Error: " + ex.getMessage()));
         }
     }
 
