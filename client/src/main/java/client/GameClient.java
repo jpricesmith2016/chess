@@ -70,7 +70,7 @@ public class GameClient {
     String printBoard(Collection<ChessMove> possibleMoves) {
         System.out.print(EscapeSequences.ERASE_SCREEN);
 
-        squareColor = SET_BG_COLOR_SLATE;
+        squareColor = SET_BG_COLOR_LIGHT_SLATE;
         newBoard = game.game().getBoard();
 
         String letterBorder;

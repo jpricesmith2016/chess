@@ -86,15 +86,15 @@ public class ChessClient {
     private String list() throws Exception {
         ListGamesResult result = httpClient.listGames();
         if (result.resultCode() == 200) {
-            Collection<GameData> gameList = result.games();
+            ArrayList<GameData> gameList = new ArrayList<>(result.games());
 
             String title = "%-6s %-15s %-15s %-15s";
             StringBuilder output = new StringBuilder(String.format(title, "GameID", "GameName", "WhiteUser", "BlackUser") + "\n");
             String formatRule = "%6d %-15s %-15s %-15s";
 
-            for (GameData games : gameList) {
-                String nextRow = String.format(formatRule, games.gameID()
-                        , games.gameName(), games.whiteUsername(), games.blackUsername());
+            for (int i = 1; i <= gameList.size(); i++) {
+                String nextRow = String.format(formatRule, i
+                        , gameList.get(i-1).gameName(), gameList.get(i-1).whiteUsername(), gameList.get(i-1).blackUsername());
                 output.append(nextRow).append("\n");
             }
 
@@ -121,10 +121,13 @@ public class ChessClient {
                 throw new Exception (result.message());
             }
 
-            for (GameData game : httpClient.listGames().games()){
-                if(game.gameID() == Integer.parseInt(params[0])) {
-                    gameClient.setGameInfo(game, params[1]);
+            ArrayList<GameData> gameList = new ArrayList<>(httpClient.listGames().games());
+
+            for (int i = 0; i < gameList.size(); i++){
+                if(i+1 == Integer.parseInt(params[0])) {
+                    gameClient.setGameInfo(gameList.get(i), params[1]);
                     chessRepl.setAuthState(ChessRepl.State.GAME);
+                    gameID = i+1;
                     return "GameID: " + gameID + " Joined as the " + params[1] + " player"
                             + gameClient.printBoard(new ArrayList<>());
                 }
@@ -147,10 +150,13 @@ public class ChessClient {
                 throw new Exception ("Invalid ID format: Expected <int> parameter", e);
             }
 
-            for (GameData game : httpClient.listGames().games()){
-                if(game.gameID() == gameID) {
-                    gameClient.setGameInfo(game, "Observer");
+            ArrayList<GameData> gameList = new ArrayList<>(httpClient.listGames().games());
+
+            for (int i = 0; i < gameList.size(); i++){
+                if(i+1 == Integer.parseInt(params[0])) {
+                    gameClient.setGameInfo(gameList.get(i), "Observer");
                     chessRepl.setAuthState(ChessRepl.State.GAME);
+                    gameID = i+1;
                     return username + " Joined GameID: " + gameID + " as an observer"
                             + gameClient.printBoard(new ArrayList<>());
                 }

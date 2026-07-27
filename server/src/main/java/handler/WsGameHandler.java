@@ -7,18 +7,17 @@ import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.*;
 import websocket.commands.*;
-import websocket.messages.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 
-public class wsGameHandler implements WsMessageHandler {
+public class WsGameHandler implements WsMessageHandler {
 
     private static Gson gson;
     private static AuthDAO authDAO;
     private static GameDAO gameDAO;
 
 
-    public wsGameHandler (AuthDAO auth, GameDAO game) {
+    public WsGameHandler(AuthDAO auth, GameDAO game) {
         authDAO = auth;
         gameDAO = game;
     }
@@ -43,6 +42,7 @@ public class wsGameHandler implements WsMessageHandler {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            throw new Exception(ex);
         }
     }
 

@@ -66,7 +66,7 @@ public class LoginClient {
     }
 
     private String register(String[] params) throws Exception {
-        if (params.length >= 2) {
+        if (params.length == 3) {
             RegisterResult result = httpClient.register(new RegisterRequest(params[0], params[1], params[2]));
             if (result.resultCode() == 200) {
                 chessRepl.setAuthState(ChessRepl.State.LOGGED_IN);
