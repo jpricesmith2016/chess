@@ -6,11 +6,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage.*;
 
 public class WsConnectionManager {
     Map<Integer, Set<Session>> sessionMap = new HashMap<>();
+    private final Gson gson = new Gson();
 
     void addSessionToGame(int gameID, Session session) {
         if (!sessionMap.containsKey(gameID)) {
@@ -39,6 +41,12 @@ public class WsConnectionManager {
         return new HashSet<>();
     }
 
+    void sendMessage(Session session, ServerMessageType messageType, String message) throws IOException {
+        if (session.isOpen()) {
+            session.getRemote().sendString(gson.toJson(Map.of("messageType", messageType.name(), "message", message)));
+        }
+    }
+
     void broadcastMessage(Session excludedSession, ServerMessageType messageType, String message, int gameID) throws IOException {
         HashSet<Session> broadcastSessions = (HashSet<Session>) sessionMap.get(gameID);
         if (excludedSession != null) {
@@ -46,7 +54,7 @@ public class WsConnectionManager {
         }
         for (Session c : (Session[]) broadcastSessions.toArray()) {
             if (c.isOpen()) {
-                c.getRemote().sendString(message);
+                c.getRemote().sendString(gson.toJson(Map.of("messageType", messageType.name(), "message", message)));
             }
         }
     }

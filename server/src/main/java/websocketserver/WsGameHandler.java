@@ -15,7 +15,6 @@ import static websocket.messages.ServerMessage.ServerMessageType.*;
 import websocket.commands.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
-import websocket.messages.ServerMessage;
 
 import java.util.Objects;
 
@@ -39,7 +38,7 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
     }
 
     @Override
-    public void handleClose (WsCloseContext ctx) {
+    public void handleClose (@NotNull WsCloseContext ctx) {
         System.out.println("Websocket Closed");
     }
 
@@ -66,33 +65,39 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
         }
     }
 
-    private void connect(Session session, String username, ConnectCommand command) {
-        int gameID = command.getGameID();
+    private void connect(Session session, String username, ConnectCommand command) throws Exception {
+        wsConn.sendMessage(session, LOAD_GAME, "");
+        String team = gameDAO.getGame(command.getGameID()).whiteUsername().equals(username) ? "White"
+                : gameDAO.getGame(command.getGameID()).blackUsername().equals(username) ? "Black" : " an Observer";
+        wsConn.broadcastMessage(session, NOTIFICATION, username + " has joined the game as " + team, command.getGameID());
     }
 
     private void makeMove(Session session, String username, MakeMoveCommand command) throws Exception {
         GameData oldData = gameDAO.getGame(command.getGameID());
         if (oldData.game().validMoves(command.move.getStartPosition()).contains(command.move)){
             oldData.game().makeMove(command.move);
-
+            gameDAO.updateGame(oldData);
+            wsConn.broadcastMessage(null, LOAD_GAME, null, command.getGameID());
+            wsConn.broadcastMessage(session, NOTIFICATION, username + "has made the move " + command.move.toString()
+                    , command.getGameID());
         } else {
-            wsConn.broadcastMessage(null, LOAD_GAME, null);
+            wsConn.broadcastMessage(null, LOAD_GAME, null, command.getGameID());
             throw new Exception ("Invalid move sent to server");
         }
     }
 
-    private void leave(Session session, String username, LeaveGameCommand command) throws DataAccessException {
+    private void leave(Session session, String username, LeaveGameCommand command) throws Exception {
         GameData oldData = gameDAO.getGame(command.getGameID());
         GameData data = new GameData(oldData.gameID()
                 , Objects.equals(oldData.whiteUsername(), username) ? null : oldData.whiteUsername()
                 , Objects.equals(oldData.blackUsername(), username) ? null : oldData.blackUsername()
                 , oldData.gameName(), oldData.game());
         gameDAO.updateGame(data);
+        wsConn.broadcastMessage(session, NOTIFICATION, "User " + username + " has left the game.", data.gameID());
         wsConn.removeSessionFromGame(data.gameID(), session);
-        wsConn.broadcastMessage(session, NOTIFICATION, "User " + username + " has left the game.");
     }
 
-    private void resign(Session session, String username, ResignCommand command) throws DataAccessException {
+    private void resign(Session session, String username, ResignCommand command) throws Exception {
         GameData oldData = gameDAO.getGame(command.getGameID());
         ChessGame.TeamColor team = Objects.equals(oldData.whiteUsername(), username) ? ChessGame.TeamColor.WHITE
                 : ChessGame.TeamColor.BLACK;
@@ -101,11 +106,11 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
         oldData.game().setGameEnd(team.name() + " has decided to resign, " + winTeam + " has won by default");
         GameData data = new GameData(oldData.gameID(), oldData.whiteUsername(), oldData.blackUsername(), oldData.gameName(), oldData.game());
         gameDAO.updateGame(data);
-        wsConn.broadcastMessage(session, NOTIFICATION, "User " + username + " has decided to resign.");
+        wsConn.broadcastMessage(session, NOTIFICATION, "User " + username + " has decided to resign.", data.gameID());
     }
 
     private void saveSession(Integer gameId, Session session) {
-
+        wsConn.addSessionToGame(gameId, session);
     }
 
     private String getUsername(String authToken) throws DataAccessException {

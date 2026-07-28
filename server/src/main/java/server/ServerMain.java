@@ -7,6 +7,7 @@ import io.javalin.Javalin;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
+import websocketserver.WsGameHandler;
 
 public class ServerMain {
 
@@ -18,6 +19,7 @@ public class ServerMain {
     final UserService userService = new UserService(userDAO);
     final GameService gameService = new GameService(gameDAO, authDAO);
     private final Javalin javalinServer;
+    private final WsGameHandler webSocketHandler;
 
 
     public static void main(String[] args) {
@@ -29,10 +31,6 @@ public class ServerMain {
                 requestedPort = Integer.parseInt(args[0]);
             }
 
-            authDAO = new SQLAuthDAO();
-            userDAO = new SQLUserDAO();
-            gameDAO = new SQLGameDAO();
-
             var server = new ServerMain();
             int port = server.run(requestedPort);
             System.out.printf("Server started on port %d%n", port);
@@ -43,6 +41,25 @@ public class ServerMain {
 
     public ServerMain() {
         javalinServer = Javalin.create(config -> config.staticFiles.add("web"));
+        authDAO = new MemoryAuthDAO();
+        userDAO = new MemoryUserDAO();
+        gameDAO = new MemoryGameDAO();
+
+        try {
+            authDAO = new SQLAuthDAO();
+            userDAO = new SQLUserDAO();
+            gameDAO = new SQLGameDAO();
+        } catch (Exception e){
+            System.out.printf("Unable to configure Databases: %s%n", e.getMessage());
+        }
+
+        webSocketHandler = new WsGameHandler(authDAO, gameDAO);
+
+        javalinServer.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
         createHandlers();
     }
 

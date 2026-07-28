@@ -8,6 +8,7 @@ import io.javalin.*;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
+import websocketserver.WsGameHandler;
 
 import java.util.Map;
 
@@ -15,14 +16,34 @@ public class Server {
 
 
     private final Javalin javalin;
+    private final WsGameHandler webSocketHandler;
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
+
+        AuthDAO authDAO = new MemoryAuthDAO();
+        UserDAO userDAO = new MemoryUserDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
+
+        try {
+            authDAO = new SQLAuthDAO();
+            userDAO = new SQLUserDAO();
+            gameDAO = new SQLGameDAO();
+        } catch (Exception e){
+            System.out.printf("Unable to configure Databases: %s%n", e.getMessage());
+        }
+
+        webSocketHandler = new WsGameHandler(authDAO, gameDAO);
+
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
+
         registerExceptionHandlers();
         try {
-            AuthDAO authDAO = new SQLAuthDAO();
-            UserDAO userDAO = new SQLUserDAO();
-            GameDAO gameDAO = new SQLGameDAO();
+
             AuthService authService = new AuthService(authDAO, userDAO);
             UserService userService = new UserService(userDAO);
             GameService gameService = new GameService(gameDAO, authDAO);
