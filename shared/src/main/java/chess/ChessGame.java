@@ -47,6 +47,7 @@ public class ChessGame implements Cloneable {
         blackRookMoved[0] = false;
         blackRookMoved[1] = false;
         enPassantTarget = null;
+        gameEnd = "";
     }
 
     /**
@@ -83,7 +84,7 @@ public class ChessGame implements Cloneable {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         // Pulls currently believed valid moves and checks to ensure there are values
         Collection<ChessMove> moves = ChessPiece.pieceMoves(gameBoard, startPosition, this);
-        if (moves == null || gameEnd.isEmpty()) {
+        if (moves == null) {
             return new ArrayList<>();
         }
 
@@ -127,8 +128,8 @@ public class ChessGame implements Cloneable {
         }
 
         // If the game has hit an end condition, the move will not be checked
-        if (gameEnd.isEmpty()) {
-            throw new InvalidMoveException("The game has finished, you cannot move");
+        if (!Objects.equals(gameEnd, "")) {
+            throw new InvalidMoveException("The game has finished, you cannot move" + gameEnd);
         }
 
         Collection<ChessMove> currentPossibilities = validMoves(startPos);
@@ -140,6 +141,10 @@ public class ChessGame implements Cloneable {
 
         // Calls new helper method to apply the move to the board
         applyMove(startPos, move);
+
+        isInCheckmate(piece.getTeamColor());
+        isInCheckmate(teamTurn);
+        isInStalemate(teamTurn);
     }
 
     /**
@@ -406,6 +411,7 @@ public class ChessGame implements Cloneable {
             ChessBoard clonedBoard = getBoard().clone();
             clone.setBoard(clonedBoard);
             clone.teamTurn = teamTurn;
+            clone.gameEnd = gameEnd;
             clone.whiteKingMoved = whiteKingMoved;
             clone.blackKingMoved = blackKingMoved;
             clone.whiteRookMoved = new boolean[2];
@@ -428,6 +434,7 @@ public class ChessGame implements Cloneable {
         }
         ChessGame chessGame = (ChessGame) o;
         return teamTurn == chessGame.teamTurn
+                && Objects.equals(gameEnd, chessGame.getGameEnd())
                 && whiteKingMoved == chessGame.whiteKingMoved
                 && blackKingMoved == chessGame.blackKingMoved
                 && Arrays.equals(whiteRookMoved, chessGame.whiteRookMoved)
@@ -438,7 +445,7 @@ public class ChessGame implements Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(teamTurn, whiteKingMoved, blackKingMoved,
+        return Objects.hash(teamTurn, whiteKingMoved, blackKingMoved, gameEnd,
                 Arrays.hashCode(whiteRookMoved), Arrays.hashCode(blackRookMoved),
                 enPassantTarget, gameBoard);
     }

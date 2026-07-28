@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessage.*;
 
 public class WsConnectionManager {
@@ -41,21 +42,25 @@ public class WsConnectionManager {
         return new HashSet<>();
     }
 
-    void sendMessage(Session session, ServerMessageType messageType, String message) throws IOException {
+    void sendMessage(Session session, ServerMessage message) throws IOException {
         if (session.isOpen()) {
-            session.getRemote().sendString(gson.toJson(Map.of("messageType", messageType.name(), "message", message)));
+            session.getRemote().sendString(gson.toJson(message));
         }
     }
 
-    void broadcastMessage(Session excludedSession, ServerMessageType messageType, String message, int gameID) throws IOException {
-        HashSet<Session> broadcastSessions = (HashSet<Session>) sessionMap.get(gameID);
+    void broadcastMessage(Session excludedSession, ServerMessage message, int gameID) throws IOException {
+        HashSet<Session> broadcastSessions = new HashSet<> (sessionMap.get(gameID));
         if (excludedSession != null) {
             broadcastSessions.remove(excludedSession);
         }
-        for (Session c : (Session[]) broadcastSessions.toArray()) {
-            if (c.isOpen()) {
-                c.getRemote().sendString(gson.toJson(Map.of("messageType", messageType.name(), "message", message)));
+        if (broadcastSessions.isEmpty()) {
+            return;
+        }
+        for (Session c : broadcastSessions) {
+            if (!c.isOpen()) {
+                continue;
             }
+            c.getRemote().sendString(gson.toJson(message));
         }
     }
 }

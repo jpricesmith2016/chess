@@ -2,12 +2,15 @@ package server;
 
 import chess.*;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.TestFactory;
+//import org.junit.jupiter.api.TestFactory;
 import passoff.model.*;
 import passoff.server.TestServerFacade;
 import passoff.websocket.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
+
+import static server.TestFactory.getGsonBuilder;
+import static server.TestFactory.getMessageTime;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 import java.net.URISyntaxException;
@@ -38,8 +41,8 @@ public class WebSocketTests {
 
         serverFacade = new TestServerFacade("localhost", port);
         serverFacade.clear();
-        environment = new WebsocketTestingEnvironment("localhost", port, "/ws", org.junit.jupiter.api.TestFactory.getGsonBuilder());
-        waitTime = TestFactory.getMessageTime();
+        environment = new WebsocketTestingEnvironment("localhost", port, "/ws", getGsonBuilder());
+        waitTime = getMessageTime();
     }
 
     @BeforeEach
