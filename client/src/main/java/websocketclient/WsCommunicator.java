@@ -53,6 +53,7 @@ public class WsCommunicator extends Endpoint{
         try {
             this.authToken = authToken;
             UserGameCommand connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(connect));
         } catch (Exception e) {
             throw new Exception ("Failed to connect: " + e.getMessage(), e);
         }
@@ -61,6 +62,7 @@ public class WsCommunicator extends Endpoint{
     public void makeMove(ChessMove requestedMove) throws Exception {
         try {
             MakeMoveCommand move = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, requestedMove);
+            this.session.getBasicRemote().sendText(new Gson().toJson(move));
         } catch (Exception e) {
             throw new Exception ("Failed to make move: " + e.getMessage(), e);
         }
@@ -69,6 +71,7 @@ public class WsCommunicator extends Endpoint{
     public void leave() throws Exception {
         try {
             UserGameCommand leave = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(leave));
         } catch (Exception e) {
             throw new Exception ("Failed to leave game: " + e.getMessage(), e);
         }
@@ -77,6 +80,7 @@ public class WsCommunicator extends Endpoint{
     public void resign() throws Exception {
         try {
             UserGameCommand resign = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(resign));
         } catch (Exception e) {
             throw new Exception ("Failed to resign: " + e.getMessage(), e);
         }
