@@ -28,7 +28,8 @@ public class GameClient implements ServerMessageHandler {
         IN_PROGRESS,
         WHITE_WIN,
         BLACK_WIN,
-        STALEMATE
+        STALEMATE,
+        RESIGN
     }
     static GameState gameState = GameState.IN_PROGRESS;
 
@@ -71,6 +72,12 @@ public class GameClient implements ServerMessageHandler {
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
                 LoadGameMessage gameMessage = (LoadGameMessage) message;
+                ChessGame game = gameMessage.getGame().game();
+                if (!Objects.equals(game.getGameEnd(), "") && gameState == GameState.IN_PROGRESS) {
+                    gameState = game.isInStalemate(game.getTeamTurn()) ? GameState.STALEMATE :
+                            game.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.WHITE_WIN :
+                            game.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.BLACK_WIN : GameState.RESIGN;
+                }
                 printBoard(new ArrayList<>());
             }
             case ERROR -> {
@@ -305,6 +312,13 @@ public class GameClient implements ServerMessageHandler {
             ChessMove requestedMove = new ChessMove(startPos, endPos, type);
 
             game.game().makeMove(requestedMove);
+            if (game.game().isInCheckmate(game.game().getTeamTurn())) {
+                gameState = game.game().getBoard().getPiece(endPos).getTeamColor() == ChessGame.TeamColor.WHITE ?
+                        GameState.WHITE_WIN : GameState.BLACK_WIN;
+            }
+            if (game.game().isInStalemate(game.game().getTeamTurn())) {
+                gameState = GameState.STALEMATE;
+            }
             webSocket.makeMove(requestedMove);
 
             return "Move has been made" + printBoard(new ArrayList<>());
