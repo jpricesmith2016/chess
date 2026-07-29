@@ -3,14 +3,12 @@ package client;
 import chess.*;
 import model.GameData;
 import org.jetbrains.annotations.NotNull;
-import ui.EscapeSequences;
+import static ui.EscapeSequences.*;
 import websocket.messages.*;
 import websocketclient.ServerMessageHandler;
 import websocketclient.WsCommunicator;
 
 import java.util.*;
-
-import static ui.EscapeSequences.*;
 
 public class GameClient implements ServerMessageHandler {
 
@@ -31,7 +29,7 @@ public class GameClient implements ServerMessageHandler {
         STALEMATE,
         RESIGN
     }
-    static GameState gameState = GameState.IN_PROGRESS;
+    static GameState gameState;
 
     public GameClient(ServerFacade httpClient, ChessRepl chessRepl) {
         GameClient.httpClient = httpClient;
@@ -47,6 +45,7 @@ public class GameClient implements ServerMessageHandler {
         GameClient.team = team;
         GameClient.board = game.game().getBoard();
         GameClient.webSocket = webSocket;
+        gameState = GameState.IN_PROGRESS;
     }
 
     private final String[] helpString = {
@@ -78,6 +77,8 @@ public class GameClient implements ServerMessageHandler {
                     gameState = gameServer.isInStalemate(gameServer.getTeamTurn()) ? GameState.STALEMATE :
                             gameServer.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.WHITE_WIN :
                             gameServer.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.BLACK_WIN : GameState.RESIGN;
+                } else {
+                    gameState = GameState.IN_PROGRESS;
                 }
                 game = gameMessage.getGame();
                 System.out.print(ERASE_SCREEN);
@@ -85,23 +86,25 @@ public class GameClient implements ServerMessageHandler {
             }
             case ERROR -> {
                 ErrorMessage errorMessage = (ErrorMessage) message;
-                System.out.print(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_BLINKING);
+                System.out.print(RESET_TEXT_COLOR + SET_TEXT_BLINKING + SET_TEXT_COLOR_RED
+                        + errorMessage.getErrorMessage() + RESET_TEXT_BLINKING);
             }
             case NOTIFICATION -> {
                 NotificationMessage notificationMessage = (NotificationMessage) message;
-                System.out.print(SET_TEXT_BLINKING + SET_TEXT_COLOR_BLUE + notificationMessage.getMessage() + RESET_TEXT_BLINKING);
+                System.out.print(RESET_TEXT_COLOR + SET_TEXT_BLINKING + SET_TEXT_COLOR_GREEN
+                        + notificationMessage.getMessage() + RESET_TEXT_BLINKING);
             }
         }
         printPrompt();
     }
 
     void printPrompt() {
-        System.out.print(EscapeSequences.ERASE_SCREEN);
+        System.out.print(ERASE_SCREEN);
         System.out.print(SET_TEXT_COLOR_LIGHT_GREY + "\n[Chess_Game] >>> " + RESET_TEXT_COLOR);
     }
 
     String printBoard(Collection<ChessMove> possibleMoves) {
-        System.out.print(EscapeSequences.ERASE_SCREEN);
+        System.out.print(ERASE_SCREEN);
 
         squareColor = SET_BG_COLOR_LIGHT_SLATE;
         oldBoard = board;

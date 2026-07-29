@@ -70,10 +70,12 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
 
     private void connect(Session session, String username, UserGameCommand command) throws Exception {
         try {
-            if (gameDAO.getGame(command.getGameID()) == null) {
-                wsConn.sendMessage(session, new ErrorMessage("Invalid gameID"));
-                return;
+            try {
+                gameDAO.getGame(command.getGameID());
+            } catch (Exception e) {
+                throw new Exception("Invalid gameID", e);
             }
+
             if (!authDAO.containsAuthToken(command.getAuthToken())) {
                 wsConn.sendMessage(session, new ErrorMessage("Unauthorized"));
             }
