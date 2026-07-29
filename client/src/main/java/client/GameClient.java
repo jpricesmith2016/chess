@@ -72,12 +72,13 @@ public class GameClient implements ServerMessageHandler {
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
                 LoadGameMessage gameMessage = (LoadGameMessage) message;
-                ChessGame game = gameMessage.getGame().game();
-                if (!Objects.equals(game.getGameEnd(), "") && gameState == GameState.IN_PROGRESS) {
-                    gameState = game.isInStalemate(game.getTeamTurn()) ? GameState.STALEMATE :
-                            game.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.WHITE_WIN :
-                            game.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.BLACK_WIN : GameState.RESIGN;
+                ChessGame gameServer = gameMessage.getGame().game();
+                if (!Objects.equals(gameServer.getGameEnd(), "") && gameState == GameState.IN_PROGRESS) {
+                    gameState = gameServer.isInStalemate(gameServer.getTeamTurn()) ? GameState.STALEMATE :
+                            gameServer.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.WHITE_WIN :
+                            gameServer.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.BLACK_WIN : GameState.RESIGN;
                 }
+                game = gameMessage.getGame();
                 printBoard(new ArrayList<>());
             }
             case ERROR -> {

@@ -129,11 +129,11 @@ public class ChessClient {
 
             for (int i = 0; i < gameList.size(); i++){
                 if(i+1 == Integer.parseInt(params[0])) {
-                    webSocket = new WsCommunicator(serverURL, gameClient);
-                    webSocket.connect();
+                    gameID = i+1;
+                    webSocket = new WsCommunicator(serverURL, gameClient, gameID);
+                    webSocket.connect(authToken);
                     gameClient.setGameInfo(gameList.get(i), params[1], webSocket);
                     chessRepl.setAuthState(ChessRepl.State.GAME);
-                    gameID = i+1;
                     return "GameID: " + gameID + " Joined as the " + params[1] + " player"
                             + gameClient.printBoard(new ArrayList<>());
                 }
@@ -160,11 +160,11 @@ public class ChessClient {
 
             for (int i = 0; i < gameList.size(); i++){
                 if(i+1 == Integer.parseInt(params[0])) {
-                    webSocket = new WsCommunicator(serverURL, gameClient);
-                    webSocket.connect();
+                    gameID = i+1;
+                    webSocket = new WsCommunicator(serverURL, gameClient, gameID);
+                    webSocket.connect(authToken);
                     gameClient.setGameInfo(gameList.get(i), "Observer", webSocket);
                     chessRepl.setAuthState(ChessRepl.State.GAME);
-                    gameID = i+1;
                     return username + " Joined GameID: " + gameID + " as an observer"
                             + gameClient.printBoard(new ArrayList<>());
                 }
