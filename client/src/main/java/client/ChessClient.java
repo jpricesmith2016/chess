@@ -134,8 +134,7 @@ public class ChessClient {
                     webSocket.connect(authToken);
                     gameClient.setGameInfo(gameList.get(i), params[1], webSocket);
                     chessRepl.setAuthState(ChessRepl.State.GAME);
-                    return "GameID: " + gameID + " Joined as the " + params[1] + " player"
-                            + gameClient.printBoard(new ArrayList<>());
+                    return "GameID: " + gameID + " Joined as the " + params[1] + " player";
                 }
             }
             return "Invalid GameID: GameID " + gameID + " does not exist";
@@ -165,8 +164,7 @@ public class ChessClient {
                     webSocket.connect(authToken);
                     gameClient.setGameInfo(gameList.get(i), "Observer", webSocket);
                     chessRepl.setAuthState(ChessRepl.State.GAME);
-                    return username + " Joined GameID: " + gameID + " as an observer"
-                            + gameClient.printBoard(new ArrayList<>());
+                    return username + " Joined GameID: " + gameID + " as an observer";
                 }
             }
             return "Invalid GameID: GameID " + gameID + " does not exist";

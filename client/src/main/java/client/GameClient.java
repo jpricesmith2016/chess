@@ -69,6 +69,7 @@ public class GameClient implements ServerMessageHandler {
     };
 
     public void notify(@NotNull ServerMessage message) {
+        System.out.println();
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
                 LoadGameMessage gameMessage = (LoadGameMessage) message;
@@ -90,6 +91,7 @@ public class GameClient implements ServerMessageHandler {
                 System.out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_BLUE + notificationMessage);
             }
         }
+        printPrompt();
     }
 
     void printPrompt() {
