@@ -22,14 +22,7 @@ public class GameClient implements ServerMessageHandler {
     private static String squareColor;
     private static WsCommunicator webSocket;
 
-    public enum GameState {
-        IN_PROGRESS,
-        WHITE_WIN,
-        BLACK_WIN,
-        STALEMATE,
-        RESIGN
-    }
-    static GameState gameState;
+    static String gameState;
 
     public GameClient(ServerFacade httpClient, ChessRepl chessRepl) {
         GameClient.httpClient = httpClient;
@@ -45,7 +38,7 @@ public class GameClient implements ServerMessageHandler {
         GameClient.team = team;
         GameClient.board = game.game().getBoard();
         GameClient.webSocket = webSocket;
-        gameState = GameState.IN_PROGRESS;
+        gameState = "";
     }
 
     private final String[] helpString = {
@@ -73,16 +66,27 @@ public class GameClient implements ServerMessageHandler {
             case LOAD_GAME -> {
                 LoadGameMessage gameMessage = (LoadGameMessage) message;
                 ChessGame gameServer = gameMessage.getGame().game();
-                if (!Objects.equals(gameServer.getGameEnd(), "") && gameState == GameState.IN_PROGRESS) {
-                    gameState = gameServer.isInStalemate(gameServer.getTeamTurn()) ? GameState.STALEMATE :
-                            gameServer.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.WHITE_WIN :
-                            gameServer.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.BLACK_WIN : GameState.RESIGN;
+                if (!Objects.equals(gameServer.getGameEnd(), "") && Objects.equals(gameState, "")) {
+                    gameState = gameServer.getGameEnd();
                 } else {
-                    gameState = GameState.IN_PROGRESS;
+                    gameState = "";
+                }
+                if (Objects.equals(gameState, "")) {
+                    if (game.game().isInCheckmate(game.game().getTeamTurn())) {
+                        gameState = game.game().getTeamTurn() == ChessGame.TeamColor.WHITE ?
+                                game.blackUsername() + " has won due to checkmate" : game.whiteUsername() + " has won due to checkmate";
+                    }
+                    if (game.game().isInStalemate(game.game().getTeamTurn())) {
+                        gameState = "The game has ended in stalemate";
+                    }
                 }
                 game = gameMessage.getGame();
-                System.out.print(ERASE_SCREEN);
-                printBoard(new ArrayList<>());
+                System.out.print(ERASE_SCREEN + printBoard(new ArrayList<>()) + "\n");
+                if (Objects.equals(gameState, "") && game.game().isInCheck(game.game().getTeamTurn())) {
+                    System.out.print(game.game().getTeamTurn() == ChessGame.TeamColor.WHITE ? game.whiteUsername() + " is in check"
+                            : game.blackUsername() + " is in check");
+                    System.out.print("\n");
+                }
             }
             case ERROR -> {
                 ErrorMessage errorMessage = (ErrorMessage) message;
@@ -153,14 +157,12 @@ public class GameClient implements ServerMessageHandler {
         }
         System.out.print(letterBorder);
 
-        if (gameState == GameState.IN_PROGRESS) {
+        if (gameState == "") {
             return (SET_TEXT_COLOR_LIGHT_GREY + "\n[Chess_Game] >>> Game_ID: " + game.gameID() + " Team: " + team
                     + " Turn: " + game.game().getTeamTurn().toString());
         } else {
             return (SET_TEXT_COLOR_MAGENTA + "\n[Chess_Game] >>> Game_ID: " + game.gameID()
-                    + " THE GAME HAS CONCLUDED THE RESULT WAS: " + (gameState == GameState.STALEMATE ? "A STALEMATE"
-                    : gameState == GameState.BLACK_WIN ? "BLACK'S WIN - " + game.blackUsername()
-                    : gameState == GameState.WHITE_WIN ? "WHITE'S WIN - " + game.whiteUsername() : "A User Has Resigned"));
+                    + " THE GAME HAS CONCLUDED THE RESULT WAS: " + gameState);
         }
     }
 
@@ -229,13 +231,13 @@ public class GameClient implements ServerMessageHandler {
             var tokens = input.trim().split("\\s+");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            if (gameState == GameState.IN_PROGRESS && !Objects.equals(team, "Observer")) {
+            if (!Objects.equals(team, "Observer")) {
                 return switch (cmd) {
                     case "l", "leave" -> exit();
                     case "r", "redraw" -> printBoard(new ArrayList<>());
-                    case "resign" -> resign();
+                    case "resign" -> Objects.equals(gameState, "") ? resign() : "The game has Concluded, you cannot resign";
                     case "h", "highlight" -> legalMoves(params);
-                    case "m", "move" -> move(params);
+                    case "m", "move" -> Objects.equals(gameState, "") ? move(params) : "The game has Concluded, you cannot move";
                     default -> helpString[0];
                 };
             } else {
@@ -290,7 +292,9 @@ public class GameClient implements ServerMessageHandler {
         String req = scanner.nextLine();
         switch (req){
             case "y", "Y", "yes", "Yes" -> {
-                gameState = (Objects.equals(team, "White") ? GameState.BLACK_WIN : GameState.WHITE_WIN);
+                gameState = (Objects.equals(team, "White") ?
+                        game.blackUsername() + " has won due to " + game.whiteUsername() + " resigning"
+                        : game.whiteUsername() + " has won due to " + game.blackUsername() + " resigning");
                 webSocket.resign();
                 return "You have chosen to resign and Forfeit the game.";
             }
@@ -303,8 +307,14 @@ public class GameClient implements ServerMessageHandler {
     private String move(String[] params) throws Exception {
         if (params.length == 4 || params.length == 5) {
             ChessPiece.PieceType type = null;
-            ChessPosition startPos = new ChessPosition(Integer.parseInt(params[1]), colConvert(params[0]));
-            ChessPosition endPos = new ChessPosition(Integer.parseInt(params[3]), colConvert(params[2]));
+            ChessPosition startPos = null;
+            ChessPosition endPos = null;
+            try {
+                startPos = new ChessPosition(Integer.parseInt(params[1]), colConvert(params[0]));
+                endPos = new ChessPosition(Integer.parseInt(params[3]), colConvert(params[2]));
+            } catch (Exception e) {
+                throw new Exception ("Incorrect parameters: Expected <StartCol> <StartRow> <EndCol> <EndRow> [PromotionPiece]");
+            }
             if (params.length == 5) {
                 switch (params[4]) {
                     case "Queen" -> type = ChessPiece.PieceType.QUEEN;
@@ -320,10 +330,10 @@ public class GameClient implements ServerMessageHandler {
             game.game().makeMove(requestedMove);
             if (game.game().isInCheckmate(game.game().getTeamTurn())) {
                 gameState = game.game().getBoard().getPiece(endPos).getTeamColor() == ChessGame.TeamColor.WHITE ?
-                        GameState.WHITE_WIN : GameState.BLACK_WIN;
+                        game.whiteUsername() + " has won due to checkmate" : game.blackUsername() + " has won due to checkmate";
             }
             if (game.game().isInStalemate(game.game().getTeamTurn())) {
-                gameState = GameState.STALEMATE;
+                gameState = "The game has ended in stalemate";
             }
             webSocket.makeMove(requestedMove);
 
