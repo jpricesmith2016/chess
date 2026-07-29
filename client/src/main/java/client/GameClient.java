@@ -89,7 +89,7 @@ public class GameClient implements ServerMessageHandler {
             }
             case NOTIFICATION -> {
                 NotificationMessage notificationMessage = (NotificationMessage) message;
-                System.out.print(SET_TEXT_BLINKING + SET_TEXT_COLOR_BLUE + notificationMessage + RESET_TEXT_BLINKING);
+                System.out.print(SET_TEXT_BLINKING + SET_TEXT_COLOR_BLUE + notificationMessage.getMessage() + RESET_TEXT_BLINKING);
             }
         }
         printPrompt();

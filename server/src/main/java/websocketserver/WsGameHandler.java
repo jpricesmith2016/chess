@@ -105,18 +105,19 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
             }
             oldData.game().makeMove(move);
 
+            gameDAO.updateGame(oldData);
+
             wsConn.broadcastMessage(null, new LoadGameMessage(gameDAO.getGame(command.getGameID()))
                     , command.getGameID());
 
             wsConn.broadcastMessage(session
-                    , new NotificationMessage(username + "has made the move " + move)
+                    , new NotificationMessage(username + " has made a move")
                     , command.getGameID());
 
             if (!Objects.equals(oldData.game().getGameEnd(), "")) {
                 wsConn.broadcastMessage(null, new NotificationMessage(oldData.game().getGameEnd())
                         , command.getGameID());
             }
-            gameDAO.updateGame(oldData);
 
         } else {
             throw new Exception ("Invalid move sent to server " + move);
