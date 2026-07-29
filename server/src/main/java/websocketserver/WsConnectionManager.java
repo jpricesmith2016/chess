@@ -35,13 +35,6 @@ public class WsConnectionManager {
         }
     }
 
-    Set<Session> getSessionsForGame(int gameID) {
-        if (sessionMap.containsKey(gameID)) {
-            return sessionMap.get(gameID);
-        }
-        return new HashSet<>();
-    }
-
     void sendMessage(Session session, ServerMessage message) throws IOException {
         if (session.isOpen()) {
             session.getRemote().sendString(gson.toJson(message));

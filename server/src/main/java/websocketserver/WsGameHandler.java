@@ -23,7 +23,7 @@ import java.util.Objects;
 
 public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
-    private static final Gson gson = new Gson();
+    private static Gson gson = new Gson();
     private static AuthDAO authDAO;
     private static GameDAO gameDAO;
     private final WsConnectionManager wsConn = new WsConnectionManager();
