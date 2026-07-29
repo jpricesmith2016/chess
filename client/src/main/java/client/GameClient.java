@@ -20,7 +20,7 @@ public class GameClient implements ServerMessageHandler {
     private static ChessBoard board;
     private static ChessRepl chessRepl;
     private static ChessClient chessClient;
-    private static ChessBoard newBoard;
+    private static ChessBoard oldBoard;
     private static String squareColor;
     private static WsCommunicator webSocket;
 
@@ -80,15 +80,16 @@ public class GameClient implements ServerMessageHandler {
                             gameServer.isInCheckmate(ChessGame.TeamColor.BLACK) ? GameState.BLACK_WIN : GameState.RESIGN;
                 }
                 game = gameMessage.getGame();
+                System.out.print(ERASE_SCREEN);
                 printBoard(new ArrayList<>());
             }
             case ERROR -> {
                 ErrorMessage errorMessage = (ErrorMessage) message;
-                System.out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + errorMessage.getErrorMessage());
+                System.out.print(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_BLINKING);
             }
             case NOTIFICATION -> {
                 NotificationMessage notificationMessage = (NotificationMessage) message;
-                System.out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_BLUE + notificationMessage);
+                System.out.print(SET_TEXT_BLINKING + SET_TEXT_COLOR_BLUE + notificationMessage + RESET_TEXT_BLINKING);
             }
         }
         printPrompt();
@@ -103,7 +104,8 @@ public class GameClient implements ServerMessageHandler {
         System.out.print(EscapeSequences.ERASE_SCREEN);
 
         squareColor = SET_BG_COLOR_LIGHT_SLATE;
-        newBoard = game.game().getBoard();
+        oldBoard = board;
+        board = game.game().getBoard();
 
         String letterBorder;
         if (team.equalsIgnoreCase("White") || team.equalsIgnoreCase("Observer")) {
@@ -148,7 +150,6 @@ public class GameClient implements ServerMessageHandler {
         }
         System.out.print(letterBorder);
 
-        board = newBoard;
         if (gameState == GameState.IN_PROGRESS) {
             return (SET_TEXT_COLOR_LIGHT_GREY + "\n[Chess_Game] >>> Game_ID: " + game.gameID() + " Team: " + team
                     + " Turn: " + game.game().getTeamTurn().toString());
@@ -156,13 +157,12 @@ public class GameClient implements ServerMessageHandler {
             return (SET_TEXT_COLOR_MAGENTA + "\n[Chess_Game] >>> Game_ID: " + game.gameID()
                     + " THE GAME HAS CONCLUDED THE RESULT WAS: " + (gameState == GameState.STALEMATE ? "A STALEMATE"
                     : gameState == GameState.BLACK_WIN ? "BLACK'S WIN - " + game.blackUsername()
-                    : "WHITE'S WIN - " + game.whiteUsername()));
+                    : gameState == GameState.WHITE_WIN ? "WHITE'S WIN - " + game.whiteUsername() : "A User Has Resigned"));
         }
     }
 
     private void printSquare(int row, int col, Collection<ChessMove> possibleMoves) {
         String saveSquareColor = (squareColor.equals(SET_BG_COLOR_SLATE)) ? SET_BG_COLOR_LIGHT_SLATE : SET_BG_COLOR_SLATE;
-        String textColor = SET_TEXT_COLOR_WHITE;
 
         if (possibleMoves.isEmpty()) {
             squareColor = saveSquareColor;
@@ -183,7 +183,7 @@ public class GameClient implements ServerMessageHandler {
         ChessPosition pos = new ChessPosition(row, col);
 
         boolean changed = !Objects.equals(
-                newBoard.getPiece(pos),
+                oldBoard.getPiece(pos),
                 board.getPiece(pos)
         );
 
@@ -192,7 +192,7 @@ public class GameClient implements ServerMessageHandler {
     }
 
     private String getSquare(ChessPosition pos) {
-        ChessPiece piece = newBoard.getPiece(pos);
+        ChessPiece piece = board.getPiece(pos);
         if (piece == null) {
             return "\u2003  ";
         }
@@ -324,7 +324,7 @@ public class GameClient implements ServerMessageHandler {
             }
             webSocket.makeMove(requestedMove);
 
-            return "Move has been made" + printBoard(new ArrayList<>());
+            return "Move has been made";
         } else {
             throw new Exception ("Incorrect parameters: Expected <StartCol> <StartRow> <EndCol> <EndRow> [PromotionPiece]");
         }
