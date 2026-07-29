@@ -279,7 +279,7 @@ public class GameClient implements ServerMessageHandler {
         }
     }
 
-    private String resign() {
+    private String resign() throws Exception{
         System.out.print("You have selected to Resign, Please confirm by entering \"y/yes\": ");
         Scanner scanner = new Scanner(System.in);
         String req = scanner.nextLine();
@@ -328,7 +328,7 @@ public class GameClient implements ServerMessageHandler {
         }
     }
 
-    private String exit() {
+    private String exit() throws Exception{
         chessRepl.setAuthState(ChessRepl.State.LOGGED_IN);
         webSocket.leave();
         return "User " + chessClient.getUser() + " has exited the game";

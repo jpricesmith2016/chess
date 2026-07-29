@@ -49,20 +49,36 @@ public class WsCommunicator extends Endpoint{
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void connect(String authToken) {
-        this.authToken = authToken;
-        UserGameCommand connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+    public void connect(String authToken) throws Exception {
+        try {
+            this.authToken = authToken;
+            UserGameCommand connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+        } catch (Exception e) {
+            throw new Exception ("Failed to connect: " + e.getMessage(), e);
+        }
     }
 
-    public void makeMove(ChessMove requestedMove) {
-        MakeMoveCommand move = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, requestedMove);
+    public void makeMove(ChessMove requestedMove) throws Exception {
+        try {
+            MakeMoveCommand move = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, requestedMove);
+        } catch (Exception e) {
+            throw new Exception ("Failed to make move: " + e.getMessage(), e);
+        }
     }
 
-    public void leave() {
-        UserGameCommand leave = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+    public void leave() throws Exception {
+        try {
+            UserGameCommand leave = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+        } catch (Exception e) {
+            throw new Exception ("Failed to leave game: " + e.getMessage(), e);
+        }
     }
 
-    public void resign() {
-        UserGameCommand resign = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+    public void resign() throws Exception {
+        try {
+            UserGameCommand resign = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+        } catch (Exception e) {
+            throw new Exception ("Failed to resign: " + e.getMessage(), e);
+        }
     }
 }
