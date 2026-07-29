@@ -2,13 +2,18 @@ package client;
 
 import chess.*;
 import model.GameData;
+import org.jetbrains.annotations.NotNull;
 import ui.EscapeSequences;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
+import websocketclient.ServerMessageHandler;
+import websocketclient.WsCommunicator;
 
 import java.util.*;
 
 import static ui.EscapeSequences.*;
 
-public class GameClient {
+public class GameClient implements ServerMessageHandler {
 
     private static ServerFacade httpClient;
     public static String team;
@@ -18,7 +23,7 @@ public class GameClient {
     private static ChessClient chessClient;
     private static ChessBoard newBoard;
     private static String squareColor;
-    private static String textColor;
+    private static WsCommunicator webSocket;
 
     public enum GameState {
         IN_PROGRESS,
@@ -37,10 +42,11 @@ public class GameClient {
         chessClient = client;
     }
 
-    public void setGameInfo(GameData game, String team) {
+    public void setGameInfo(GameData game, String team, WsCommunicator webSocket) {
         GameClient.game = game;
         GameClient.team = team;
         GameClient.board = game.game().getBoard();
+        GameClient.webSocket = webSocket;
     }
 
     private final String[] helpString = {
@@ -61,6 +67,16 @@ public class GameClient {
             Print this message: "help"
             """
     };
+
+    public void notify(@NotNull ServerMessage message) {
+        if (message.getServerMessageType() != ServerMessage.ServerMessageType.LOAD_GAME) {
+            String color = message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION ? SET_TEXT_COLOR_BLUE
+                    : SET_TEXT_COLOR_RED;
+            System.out.println(color + message);
+        } else {
+            printBoard(new ArrayList<>());
+        }
+    }
 
     void printPrompt() {
         System.out.print(EscapeSequences.ERASE_SCREEN);
@@ -130,7 +146,7 @@ public class GameClient {
 
     private void printSquare(int row, int col, Collection<ChessMove> possibleMoves) {
         String saveSquareColor = (squareColor.equals(SET_BG_COLOR_SLATE)) ? SET_BG_COLOR_LIGHT_SLATE : SET_BG_COLOR_SLATE;
-        textColor = SET_TEXT_COLOR_WHITE;
+        String textColor = SET_TEXT_COLOR_WHITE;
 
         if (possibleMoves.isEmpty()) {
             squareColor = saveSquareColor;
@@ -282,6 +298,7 @@ public class GameClient {
             ChessMove requestedMove = new ChessMove(startPos, endPos, type);
 
             game.game().makeMove(requestedMove);
+            webSocket.makeMove(requestedMove);
 
             return "Move has been made" + printBoard(new ArrayList<>());
         } else {
@@ -291,6 +308,7 @@ public class GameClient {
 
     private String exit() {
         chessRepl.setAuthState(ChessRepl.State.LOGGED_IN);
+        webSocket.leave();
         return "User " + chessClient.getUser() + " has exited the game";
     }
 }

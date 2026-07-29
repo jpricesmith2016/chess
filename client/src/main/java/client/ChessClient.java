@@ -2,10 +2,11 @@ package client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 
 import model.GameData;
 import requestresult.*;
+import websocketclient.WsCommunicator;
+
 import static ui.EscapeSequences.*;
 
 public class ChessClient {
@@ -13,13 +14,16 @@ public class ChessClient {
     private static ServerFacade httpClient;
     static String authToken;
     static String username;
+    private final String serverURL;
     private static ChessRepl chessRepl;
     private static GameClient gameClient;
+    private static WsCommunicator webSocket;
 
-    public ChessClient(ServerFacade httpClient, ChessRepl repl, GameClient gameClient) {
+    public ChessClient(ServerFacade httpClient, ChessRepl repl, GameClient gameClient, String serverURL) {
         ChessClient.httpClient = httpClient;
         ChessClient.gameClient = gameClient;
         chessRepl = repl;
+        this.serverURL = serverURL;
     }
 
     String getUser() {
@@ -125,7 +129,9 @@ public class ChessClient {
 
             for (int i = 0; i < gameList.size(); i++){
                 if(i+1 == Integer.parseInt(params[0])) {
-                    gameClient.setGameInfo(gameList.get(i), params[1]);
+                    webSocket = new WsCommunicator(serverURL, gameClient);
+                    webSocket.connect();
+                    gameClient.setGameInfo(gameList.get(i), params[1], webSocket);
                     chessRepl.setAuthState(ChessRepl.State.GAME);
                     gameID = i+1;
                     return "GameID: " + gameID + " Joined as the " + params[1] + " player"
@@ -154,7 +160,9 @@ public class ChessClient {
 
             for (int i = 0; i < gameList.size(); i++){
                 if(i+1 == Integer.parseInt(params[0])) {
-                    gameClient.setGameInfo(gameList.get(i), "Observer");
+                    webSocket = new WsCommunicator(serverURL, gameClient);
+                    webSocket.connect();
+                    gameClient.setGameInfo(gameList.get(i), "Observer", webSocket);
                     chessRepl.setAuthState(ChessRepl.State.GAME);
                     gameID = i+1;
                     return username + " Joined GameID: " + gameID + " as an observer"

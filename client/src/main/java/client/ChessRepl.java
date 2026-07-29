@@ -19,7 +19,7 @@ public class ChessRepl {
     public ChessRepl(String serverURL) {
         ServerFacade httpClient = new ServerFacade(serverURL);
         gameClient = new GameClient(httpClient, this);
-        chessClient = new ChessClient(httpClient, this, gameClient);
+        chessClient = new ChessClient(httpClient, this, gameClient, serverURL);
         loginClient = new LoginClient(httpClient, this, chessClient);
         gameClient.setChessClient(chessClient);
         authState = State.LOGGED_OUT;

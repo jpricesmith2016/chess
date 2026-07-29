@@ -10,18 +10,17 @@ public class ServerFacade {
     private static String serverURL;
     private static Gson gson = new Gson();
     private static HttpCommunicator clientHttp;
-    private static WsCommunicator clientWs;
 
     public ServerFacade(String serverURL) {
         ServerFacade.serverURL = serverURL;
         clientHttp = new HttpCommunicator(serverURL, null);
-        clientWs = new WsCommunicator(serverURL);
     }
 
     public ServerFacade(int port) {
         ServerFacade.serverURL = "http://localhost:" + port;
         clientHttp = new HttpCommunicator(serverURL, null);
     }
+
 
     public RegisterResult register(RegisterRequest request) throws Exception {
         HttpResponse<String> response = clientHttp.clientHttpBuilder("/user", false, "POST", gson.toJson(request));
