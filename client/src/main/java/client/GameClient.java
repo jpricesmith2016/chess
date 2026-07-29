@@ -4,8 +4,7 @@ import chess.*;
 import model.GameData;
 import org.jetbrains.annotations.NotNull;
 import ui.EscapeSequences;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 import websocketclient.ServerMessageHandler;
 import websocketclient.WsCommunicator;
 
@@ -69,12 +68,19 @@ public class GameClient implements ServerMessageHandler {
     };
 
     public void notify(@NotNull ServerMessage message) {
-        if (message.getServerMessageType() != ServerMessage.ServerMessageType.LOAD_GAME) {
-            String color = message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION ? SET_TEXT_COLOR_BLUE
-                    : SET_TEXT_COLOR_RED;
-            System.out.println(color + message);
-        } else {
-            printBoard(new ArrayList<>());
+        switch (message.getServerMessageType()) {
+            case LOAD_GAME -> {
+                LoadGameMessage gameMessage = (LoadGameMessage) message;
+                printBoard(new ArrayList<>());
+            }
+            case ERROR -> {
+                ErrorMessage errorMessage = (ErrorMessage) message;
+                System.out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_RED + errorMessage.getErrorMessage());
+            }
+            case NOTIFICATION -> {
+                NotificationMessage notificationMessage = (NotificationMessage) message;
+                System.out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_BLUE + notificationMessage);
+            }
         }
     }
 
@@ -272,6 +278,7 @@ public class GameClient implements ServerMessageHandler {
         switch (req){
             case "y", "Y", "yes", "Yes" -> {
                 gameState = (Objects.equals(team, "White") ? GameState.BLACK_WIN : GameState.WHITE_WIN);
+                webSocket.resign();
                 return "You have chosen to resign and Forfeit the game.";
             }
             default -> {
