@@ -65,26 +65,19 @@ public class GameClient implements ServerMessageHandler {
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
                 LoadGameMessage gameMessage = (LoadGameMessage) message;
-                ChessGame gameServer = gameMessage.getGame().game();
-                if (!Objects.equals(gameServer.getGameEnd(), "") && Objects.equals(gameState, "")) {
-                    gameState = gameServer.getGameEnd();
-                } else {
-                    gameState = "";
-                }
-                if (Objects.equals(gameState, "")) {
-                    if (game.game().isInCheckmate(game.game().getTeamTurn())) {
-                        gameState = game.game().getTeamTurn() == ChessGame.TeamColor.WHITE ?
-                                game.blackUsername() + " has won due to checkmate" : game.whiteUsername() + " has won due to checkmate";
-                    }
-                    if (game.game().isInStalemate(game.game().getTeamTurn())) {
-                        gameState = "The game has ended in stalemate";
-                    }
-                }
                 game = gameMessage.getGame();
+                if (game.game().isInCheckmate(game.game().getTeamTurn())) {
+                    gameState = game.game().getTeamTurn() == ChessGame.TeamColor.BLACK ?
+                            game.whiteUsername() + " has won due to checkmate" : game.blackUsername() + " has won due to checkmate";
+                }
+                if (game.game().isInStalemate(game.game().getTeamTurn())) {
+                    gameState = "The game has ended in stalemate";
+                }
                 System.out.print(ERASE_SCREEN + printBoard(new ArrayList<>()) + "\n");
-                if (Objects.equals(gameState, "") && game.game().isInCheck(game.game().getTeamTurn())) {
-                    System.out.print(game.game().getTeamTurn() == ChessGame.TeamColor.WHITE ? game.whiteUsername() + " is in check"
-                            : game.blackUsername() + " is in check");
+                if (Objects.equals(gameState, "") && game.game().isInCheck(game.game().getTeamTurn())
+                        && !game.game().isInCheck(game.game().getTeamTurn())) {
+                    System.out.print(SET_TEXT_COLOR_MAGENTA + (game.game().getTeamTurn() == ChessGame.TeamColor.WHITE
+                            ? game.whiteUsername() + " is in check" : game.blackUsername() + " is in check"));
                     System.out.print("\n");
                 }
             }
@@ -95,8 +88,11 @@ public class GameClient implements ServerMessageHandler {
             }
             case NOTIFICATION -> {
                 NotificationMessage notificationMessage = (NotificationMessage) message;
+                String serverMessage = notificationMessage.getMessage();
+                String outMessage = serverMessage.startsWith("White") ? serverMessage.replace("White", game.whiteUsername())
+                        : serverMessage.startsWith("Black") ? serverMessage.replace("Black", game.blackUsername()) : serverMessage;
                 System.out.print(RESET_TEXT_COLOR + SET_TEXT_BLINKING + SET_TEXT_COLOR_GREEN
-                        + notificationMessage.getMessage() + RESET_TEXT_BLINKING);
+                        + outMessage + RESET_TEXT_BLINKING);
             }
         }
         printPrompt();
@@ -157,7 +153,7 @@ public class GameClient implements ServerMessageHandler {
         }
         System.out.print(letterBorder);
 
-        if (gameState == "") {
+        if (Objects.equals(gameState, "")) {
             return (SET_TEXT_COLOR_LIGHT_GREY + "\n[Chess_Game] >>> Game_ID: " + game.gameID() + " Team: " + team
                     + " Turn: " + game.game().getTeamTurn().toString());
         } else {

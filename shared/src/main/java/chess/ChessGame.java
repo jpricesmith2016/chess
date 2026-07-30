@@ -344,7 +344,7 @@ public class ChessGame implements Cloneable {
     public boolean isInCheckmate(TeamColor teamColor) {
         if (isInCheck(teamColor)) {
             if (noMoves(teamColor)) {
-                gameEnd = teamColor == TeamColor.WHITE ? "Black" : "White" + " has won due to checkmate.";
+                gameEnd = (teamColor == TeamColor.WHITE ? "Black" : "White") + " has won due to checkmate.";
                 return true;
             }
         }

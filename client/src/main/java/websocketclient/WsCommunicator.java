@@ -85,4 +85,14 @@ public class WsCommunicator extends Endpoint{
             throw new Exception ("Failed to resign: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public void onClose(Session session, CloseReason closeReason) {
+        super.onClose(session, closeReason);
+        try {
+            leave();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
