@@ -92,6 +92,14 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
+    public void deleteGame(GameData g) throws DataAccessException {
+        var statement = """
+                DELETE FROM game WHERE id = ?
+                """;
+        DatabaseManager.executeUpdate(statement, g.gameID());
+    }
+
+    @Override
     public void clearGame() throws DataAccessException {
         var statement = "TRUNCATE game";
         DatabaseManager.executeUpdate(statement);

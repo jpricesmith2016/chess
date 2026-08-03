@@ -5,9 +5,11 @@ import dataaccess.*;
 import dataaccess.exceptions.DataAccessException;
 import handler.*;
 import io.javalin.*;
+import io.javalin.plugin.bundled.CorsPluginConfig;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
+import websocketserver.WsConnectionManager;
 import websocketserver.WsGameHandler;
 
 import java.util.Map;
@@ -19,7 +21,10 @@ public class Server {
     private final WsGameHandler webSocketHandler;
 
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
+        javalin = Javalin.create(config -> {
+            config.bundledPlugins.enableCors(corsPluginConfig -> corsPluginConfig.addRule(CorsPluginConfig.CorsRule::anyHost));
+            config.staticFiles.add("web");
+        });
 
         AuthDAO authDAO = new MemoryAuthDAO();
         UserDAO userDAO = new MemoryUserDAO();
@@ -33,7 +38,9 @@ public class Server {
             System.out.printf("Unable to configure Databases: %s%n", e.getMessage());
         }
 
-        webSocketHandler = new WsGameHandler(authDAO, gameDAO);
+        WsConnectionManager wsConn = new WsConnectionManager();
+
+        webSocketHandler = new WsGameHandler(authDAO, gameDAO, wsConn);
 
         javalin.ws("/ws", ws -> {
             ws.onConnect(webSocketHandler);
@@ -46,11 +53,12 @@ public class Server {
 
             AuthService authService = new AuthService(authDAO, userDAO);
             UserService userService = new UserService(userDAO);
-            GameService gameService = new GameService(gameDAO, authDAO);
+            GameService gameService = new GameService(gameDAO, authDAO, wsConn);
             javalin.delete("/db", new DbClearHandler(gameService, authService, userService));
             javalin.post("/user", new UserRegHandler(userService, authService));
             javalin.post("/session", new UserLoginHandler(authService, userService));
             javalin.delete("/session", new UserLogoutHandler(authService));
+            javalin.delete("/game", new GameDeleteHandler(gameService, authService));
             javalin.get("/game", new GameListHandler(gameService, authService));
             javalin.post("/game", new GameCreateHandler(gameService, authService));
             javalin.put("/game", new GameJoinHandler(gameService, authService));

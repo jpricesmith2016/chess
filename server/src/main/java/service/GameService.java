@@ -1,22 +1,27 @@
 package service;
 
 import dataaccess.exceptions.DataAccessException;
+import io.javalin.websocket.WsConnectContext;
 import requestresult.*;
 import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
+import websocketserver.WsConnectionManager;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class GameService {
     final GameDAO gameDAO;
     final AuthDAO authDAO;
+    private WsConnectionManager wsConnect;
 
-    public GameService(GameDAO gameDAO, AuthDAO authDAO) {
+    public GameService(GameDAO gameDAO, AuthDAO authDAO, WsConnectionManager wsConnect) {
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
+        this.wsConnect = wsConnect;
     }
 
     public ListGamesResult listGames (String authToken) throws DataAccessException {
@@ -34,6 +39,17 @@ public class GameService {
         int gameID = gameDAO.createGame(game);
 
         return new CreateResult(200, gameID, "");
+    }
+
+    public LogoutResult deleteGame(String authToken, DeleteRequest request) throws DataAccessException{
+        if (request.gameID() < 1) {
+            return new LogoutResult(400, "GameID does not exist");
+        }
+        if (wsConnect.getSessions(request.gameID()).isEmpty()) {
+            gameDAO.deleteGame(gameDAO.getGame(request.gameID()));
+            return new LogoutResult(200, "Game Successfully Deleted");
+        }
+        return new LogoutResult(500, "There is still an individual connected to the game");
     }
 
     public GameJoinResult joinGame(String authToken, GameJoinRequest request) throws DataAccessException {

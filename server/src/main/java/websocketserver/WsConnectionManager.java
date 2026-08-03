@@ -1,10 +1,7 @@
 package websocketserver;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
@@ -27,12 +24,27 @@ public class WsConnectionManager {
         }
     }
 
+    public Set<Session> getSessions(int gameID) {
+        if (!sessionMap.containsKey(gameID)) {
+            return new HashSet<>();
+        }
+        return sessionMap.get(gameID);
+    }
+
     void removeSessionFromGame(int gameID, Session session) {
         if (sessionMap.containsKey(gameID)) {
             Set<Session> oldSession = sessionMap.get(gameID);
             oldSession.remove(session);
             sessionMap.replace(gameID, oldSession);
         }
+    }
+
+    int getGameIDFromSession(Session session) {
+        Optional<Integer> key = sessionMap.entrySet().stream()
+                .filter(entry -> entry.getValue().contains(session))
+                .map(Map.Entry::getKey)
+                .findFirst();
+        return key.orElse(0);
     }
 
     void sendMessage(Session session, ServerMessage message) throws IOException {

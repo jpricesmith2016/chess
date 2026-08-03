@@ -67,6 +67,12 @@ public class ServerFacade {
         return new CreateResult(response.statusCode(), id.gameID(), "");
     }
 
+    public LogoutResult deleteGame(DeleteRequest request) throws Exception {
+        HttpResponse<String> response = clientHttp.clientHttpBuilder("/game", true, "DELETE", gson.toJson(request));
+        MessageResponse responseStr = gson.fromJson(response.body(), (Type) MessageResponse.class);
+        return new LogoutResult(response.statusCode(), responseStr.message());
+    }
+
     public GameJoinResult joinGame(GameJoinRequest request) throws Exception {
         HttpResponse<String> response = clientHttp.clientHttpBuilder("/game", true, "PUT", gson.toJson(request));
 

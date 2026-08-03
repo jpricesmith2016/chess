@@ -1,5 +1,6 @@
 package dataaccess;
 
+import dataaccess.exceptions.DataAccessException;
 import model.GameData;
 
 import java.util.*;
@@ -38,6 +39,11 @@ public class MemoryGameDAO implements GameDAO {
     public void updateGame(GameData game){
         gameInfo.putIfAbsent(game.gameID(), game);
         gameInfo.replace(game.gameID(), game);
+    }
+
+    @Override
+    public void deleteGame(GameData game) throws DataAccessException {
+        gameInfo.remove(game.gameID());
     }
 
     @Override

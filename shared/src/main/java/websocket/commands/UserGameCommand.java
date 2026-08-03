@@ -26,7 +26,9 @@ public class UserGameCommand {
         CONNECT,
         MAKE_MOVE,
         LEAVE,
-        RESIGN
+        RESIGN,
+        HIGHLIGHT_MOVES,
+        CHAT_MESSAGE
     }
 
     public CommandType getCommandType() {

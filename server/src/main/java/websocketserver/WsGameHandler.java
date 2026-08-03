@@ -2,6 +2,7 @@ package websocketserver;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.exceptions.DataAccessException;
@@ -15,10 +16,9 @@ import model.*;
 import websocket.commands.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
+import websocket.messages.*;
 
+import java.util.Collection;
 import java.util.Objects;
 
 public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
@@ -26,12 +26,13 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
     private static Gson gson = new Gson();
     private static AuthDAO authDAO;
     private static GameDAO gameDAO;
-    private final WsConnectionManager wsConn = new WsConnectionManager();
+    private final WsConnectionManager wsConn;
 
 
-    public WsGameHandler(AuthDAO auth, GameDAO game) {
+    public WsGameHandler(AuthDAO auth, GameDAO game, WsConnectionManager wsConn) {
         authDAO = auth;
         gameDAO = game;
+        this.wsConn = wsConn;
     }
 
     @Override
@@ -43,6 +44,10 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
     @Override
     public void handleClose (@NotNull WsCloseContext ctx) {
         System.out.println("Websocket Closed");
+        int gameID = wsConn.getGameIDFromSession(ctx.session);
+        if (gameID > 0) {
+            wsConn.removeSessionFromGame(gameID, ctx.session);
+        }
     }
 
     @Override
@@ -61,11 +66,28 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
                 case MAKE_MOVE -> makeMove(session, username, gson.fromJson(wsMessageContext.message(), MakeMoveCommand.class));
                 case LEAVE -> leave(session, username, command);
                 case RESIGN -> resign(session, username, command);
+                case HIGHLIGHT_MOVES -> handleHighlight(session, username, gson.fromJson(wsMessageContext.message(), ValidMoveCommand.class));
+                case CHAT_MESSAGE -> chat(session,username,gson.fromJson(wsMessageContext.message(), ChatCommand.class));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
             wsConn.sendMessage(session, new ErrorMessage(ex.getMessage()));
         }
+    }
+
+    private void chat(Session session, String username, ChatCommand command) throws Exception {
+        wsConn.broadcastMessage(null, new ChatMessage(command.message), command.getGameID());
+    }
+
+    private void handleHighlight(Session session, String username, ValidMoveCommand command) throws Exception {
+        GameData game = gameDAO.getGame(command.getGameID());
+        ChessPosition position = new ChessPosition(command.getRow(), command.getCol());
+
+        Collection<ChessMove> validMoves = game.game().validMoves(position);
+
+        // We will send this back as a custom message type "VALID_MOVES"
+        // (You'll need to add VALID_MOVES to websocket.messages.MessageType enum)
+        wsConn.sendMessage(session, new ValidMovesMessage(validMoves));
     }
 
     private void connect(Session session, String username, UserGameCommand command) throws Exception {

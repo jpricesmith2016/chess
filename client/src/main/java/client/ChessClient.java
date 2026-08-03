@@ -45,6 +45,7 @@ public class ChessClient {
             List all current Games: "l", "list"
             Join an Existing Game: "j", "join" <ID> <white|black>
             Observe and Existing Game: "o", "observe" <ID>
+            Delete Game: "d", "delete" <ID>
             logout of the Client: "logout"
             clear Games: "clear"
             Print this message: "h", "help"
@@ -64,6 +65,7 @@ public class ChessClient {
                 case "l", "list" -> list();
                 case "j", "join" -> join(params);
                 case "o", "observe" -> observe(params);
+                case "d", "delete" -> delete(params);
                 case "clear" -> clearDb();
                 case "logout" -> logout();
                 default -> helpString;
@@ -87,6 +89,18 @@ public class ChessClient {
         }
     }
 
+    private String delete(String[] params) throws Exception {
+        if (params.length == 1) {
+            LogoutResult result = httpClient.deleteGame(new DeleteRequest(Integer.parseInt(params[0])));
+            if (result.resultCode() == 200) {
+                return "Game deleted Successfully";
+            } else {
+                throw new Exception (result.message());
+            }
+        } else {
+            throw new Exception ("Incorrect parameters: Expected <GameID>");
+        }
+    }
     private String list() throws Exception {
         ListGamesResult result = httpClient.listGames();
         if (result.resultCode() == 200) {
