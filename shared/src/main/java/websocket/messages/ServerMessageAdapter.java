@@ -31,6 +31,9 @@ public class ServerMessageAdapter implements JsonDeserializer<ServerMessage> {
 
             case CHAT ->
                     context.deserialize(json, ChatMessage.class);
+
+            case MOVE_MADE ->
+                    context.deserialize(json, MoveMadeMessage.class);
         };
     }
 }

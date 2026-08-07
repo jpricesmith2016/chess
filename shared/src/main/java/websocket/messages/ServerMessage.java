@@ -16,7 +16,8 @@ public class ServerMessage {
         ERROR,
         NOTIFICATION,
         VALID_MOVES,
-        CHAT
+        CHAT,
+        MOVE_MADE
     }
 
     public ServerMessage(ServerMessageType type) {

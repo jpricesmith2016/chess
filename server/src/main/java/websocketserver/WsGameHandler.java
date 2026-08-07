@@ -134,8 +134,12 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
             wsConn.broadcastMessage(null, new LoadGameMessage(gameDAO.getGame(command.getGameID()))
                     , command.getGameID());
 
-            wsConn.broadcastMessage(session
+            wsConn.broadcastMessage(null
                     , new NotificationMessage(username + " has made a move")
+                    , command.getGameID());
+
+            wsConn.broadcastMessage(null
+                    , new MoveMadeMessage(username + " has made a move")
                     , command.getGameID());
 
             if (!Objects.equals(oldData.game().getGameEnd(), "")) {
