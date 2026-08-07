@@ -52,7 +52,7 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
 
     @Override
     public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
-        int gameId = -1;
+        int gameId;
         Session session = wsMessageContext.session;
 
         try {
@@ -188,6 +188,7 @@ public class WsGameHandler implements WsConnectHandler, WsMessageHandler, WsClos
         gameDAO.updateGame(data);
         wsConn.broadcastMessage(null, new NotificationMessage("User " + username + " has decided to resign.")
                 , data.gameID());
+        wsConn.broadcastMessage(null, new LoadGameMessage(data), data.gameID());
     }
 
     private void saveSession(Integer gameId, Session session) {
